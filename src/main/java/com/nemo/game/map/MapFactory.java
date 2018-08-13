@@ -1,10 +1,11 @@
-package com.sh.game.map;
+package com.nemo.game.map;
 
-import com.sh.game.GameContext;
-import com.sh.game.config.model.MapConfig;
+import com.nemo.game.map.play.constant.PlayConst;
+import com.nemo.game.GameContext;
+import com.nemo.game.config.model.MapConfig;
 import com.sh.game.map.play.constant.PlayConst.MapType;
-import com.sh.game.map.scene.GameMap;
-import com.sh.game.map.scene.Topography;
+import com.nemo.game.map.scene.GameMap;
+import com.nemo.game.map.scene.Topography;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +19,7 @@ public class MapFactory {
         GameMap map = null;
         try {
             Topography topography = new Topography(binaryFile, mapConfig.getWidth(), mapConfig.getHeight());
-            MapType mapType = MapType.parse(mapConfig.getMapType());
+            PlayConst.MapType mapType = PlayConst.MapType.parse(mapConfig.getMapType());
             switch (mapType) {
                 case SHENYU_BOSS:
                 case SHENLONGDIANTANG_BOSS:

@@ -1,4 +1,4 @@
-package com.sh.game.config.model;
+package com.nemo.game.config.model;
 
 import lombok.Getter;
 import lombok.Setter;

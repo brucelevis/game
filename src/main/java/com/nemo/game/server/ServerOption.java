@@ -1,4 +1,4 @@
-package com.sh.game.server;
+package com.nemo.game.server;
 
 /**
  * Created by h on 2018/8/5.

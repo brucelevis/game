@@ -1,4 +1,4 @@
-package com.sh.game.map.constant;
+package com.nemo.game.map.constant;
 
 /**
  * Created by h on 2018/8/12.

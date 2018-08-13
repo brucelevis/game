@@ -1,4 +1,4 @@
-package com.sh.game.map.play.constant;
+package com.nemo.game.map.play.constant;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,6 +1,6 @@
-package com.sh.game;
+package com.nemo.game;
 
-import com.sh.game.server.ServerOption;
+import com.nemo.game.server.ServerOption;
 
 /**
  * Created by h on 2018/8/5.

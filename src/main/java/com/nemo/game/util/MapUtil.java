@@ -1,4 +1,4 @@
-package com.sh.game.util;
+package com.nemo.game.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

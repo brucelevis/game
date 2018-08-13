@@ -1,6 +1,6 @@
-package com.sh.game.util;
+package com.nemo.game.util;
 
-import com.sh.game.map.constant.MapConst.Dir;
+import com.nemo.game.map.constant.MapConst.Dir;
 
 /**
  * Created by h on 2018/8/7.
