@@ -38,6 +38,14 @@ public class Topography {
     //可行走点
     private List<Point> walkList = new ArrayList<>();
 
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
     public Topography(String binaryFile, int pixelWidth, int pixelHeight){
         this.pixelWidth = pixelWidth;
         this.pixelHeight = pixelHeight;
