@@ -29,6 +29,14 @@ public class Point {
         return id;
     }
 
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
     public void setBlock(boolean block) {
         this.block = block;
     }

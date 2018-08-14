@@ -1,6 +1,7 @@
 package com.nemo.game.util;
 
 import com.nemo.game.map.constant.MapConst.Dir;
+import com.nemo.game.map.scene.Point;
 
 /**
  * Created by h on 2018/8/7.
@@ -14,6 +15,10 @@ public class GeomUtil {
 
     //一个格子周围八方向的偏移量
     public static final int[] EIGHT_DIR_OFFSET = new int[]{-1, -1, 0, -1, 1, -1, 1, 0, 1, 1, 0, 1, -1, 1, -1, 0 };
+
+    public static Dir getDir(Point fromPoint, Point toPoint) {
+        return getDir(fromPoint.getX(), fromPoint.getY(), toPoint.getX(), toPoint.getY());
+    }
 
     //返回两个坐标之间的方向量 t相对于f
     public static Dir getDir(int fx, int fy, int tx, int ty) {
