@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 
 public class CSVUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(CSVUtil.class);
@@ -18,7 +19,7 @@ public class CSVUtil {
         CSVData csvData;
         try {
             br = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), "UTF-8"));
-            ArrayList lines = new ArrayList();
+            List<String> lines = new ArrayList<>();
 
             String line;
             while ((line = br.readLine()) != null) {

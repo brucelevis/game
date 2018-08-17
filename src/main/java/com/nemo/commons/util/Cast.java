@@ -62,10 +62,14 @@ public class Cast {
         }
     }
 
+    public static long combineInt2Long(int low, int high) {
+        return (long)low & 4294967295L | (long)high << 32 & -4294967296L;
+    }
+
     public static void main(String[] args) {
         int ret = toInteger("3.1415");
         System.out.println(ret);
+        System.out.println(Long.toBinaryString(combineInt2Long(0b1111, 0b1001)));
+        System.out.println(Long.toBinaryString(-4294967296L));
     }
-
-
 }
