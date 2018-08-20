@@ -13,6 +13,10 @@ import java.io.FileInputStream;
 public class MapUtil {
     private static final Logger LOGGER = LoggerFactory.getLogger(MapUtil.class);
 
+    public static long getMapKey(long mapId, long line) {
+        return line << 32 | mapId;
+    }
+
     public static byte[] readMapBytes(String binaryFile) {
         FileInputStream fis = null;
         ByteArrayOutputStream bos = null;

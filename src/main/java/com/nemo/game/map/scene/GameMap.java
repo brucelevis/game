@@ -2,9 +2,13 @@ package com.nemo.game.map.scene;
 
 import com.nemo.game.map.aoi.AOIEventListenerImpl;
 import com.nemo.game.map.aoi.TowerAOI;
+import com.nemo.game.map.obj.IMapObject;
 import com.nemo.game.map.route.PathFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 //场景顶层父类 所有地图类都继承
@@ -28,6 +32,13 @@ public class GameMap {
     protected int cfgId;
     //地图能否重叠站
     protected boolean canCross = false;
+
+    //存储游戏对象的map
+    protected Map<Long, IMapObject> objectMap = new HashMap<>();
+
+    public IMapObject getObject(long id) {
+        return objectMap.get(id);
+    }
 
     public GameMap(Topography topography) {
         this.topography = topography;
