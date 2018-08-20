@@ -1,6 +1,5 @@
 package com.nemo.game.map;
 
-import com.nemo.game.entity.Hero;
 import com.nemo.game.entity.Role;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
