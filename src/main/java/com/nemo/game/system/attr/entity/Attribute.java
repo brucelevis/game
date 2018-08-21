@@ -1,4 +1,4 @@
-package com.nemo.game.system.cd.attr.entity;
+package com.nemo.game.system.attr.entity;
 
 import io.protostuff.Tag;
 import lombok.extern.slf4j.Slf4j;

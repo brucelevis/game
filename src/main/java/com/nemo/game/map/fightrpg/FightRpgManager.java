@@ -7,6 +7,7 @@ import com.nemo.game.map.PlayerManager;
 import com.nemo.game.map.obj.IMapObject;
 import com.nemo.game.map.obj.PlayerActor;
 import com.nemo.game.map.scene.GameMap;
+import com.nemo.game.system.miji.entity.Skill;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +43,10 @@ public class FightRpgManager {
             return;
         }
 
+        Skill skill = actor.getSkillMap().get(skillId);
+        if(skill == null || skill.getLevel() <= 0) {
+
+        }
 
 
 

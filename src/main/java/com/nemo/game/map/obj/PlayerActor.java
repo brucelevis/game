@@ -16,6 +16,6 @@ public class PlayerActor extends Performer {
 
     @Override
     public int getType() {
-        return 0;
+        return MapObjectType.Player;
     }
 }
