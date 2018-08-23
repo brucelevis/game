@@ -3,8 +3,6 @@ package com.nemo.game;
 import com.nemo.game.back.BackServer;
 import com.nemo.game.server.ServerOption;
 import com.nemo.game.util.TimeUtil;
-import lombok.Getter;
-import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,8 +12,6 @@ import java.time.ZoneId;
 /**
  * Created by h on 2018/8/5.
  */
-@Getter
-@Setter
 public class GameContext {
     private static final Logger LOGGER = LoggerFactory.getLogger(GameContext.class);
 
@@ -97,5 +93,117 @@ public class GameContext {
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static boolean isStarted() {
+        return gameServer != null && gameServer.isOpen();
+    }
+
+    public static int getExpDouble() {
+        return expDouble;
+    }
+
+    public static void setExpDouble(int expDouble) {
+        GameContext.expDouble = expDouble;
+    }
+
+    public static LocalDateTime getOpenTime() {
+        return openTime;
+    }
+
+    public static void setOpenTime(LocalDateTime openTime) {
+        GameContext.openTime = openTime;
+    }
+
+    public static long getOpenDayZeroTime() {
+        return openDayZeroTime;
+    }
+
+    public static void setOpenDayZeroTime(long openDayZeroTime) {
+        GameContext.openDayZeroTime = openDayZeroTime;
+    }
+
+    public static LocalDateTime getCombineTime() {
+        return combineTime;
+    }
+
+    public static void setCombineTime(LocalDateTime combineTime) {
+        GameContext.combineTime = combineTime;
+    }
+
+    public static long getCombineDayZeroTime() {
+        return combineDayZeroTime;
+    }
+
+    public static void setCombineDayZeroTime(long combineDayZeroTime) {
+        GameContext.combineDayZeroTime = combineDayZeroTime;
+    }
+
+    public static boolean isCombined() {
+        return combined;
+    }
+
+    public static void setCombined(boolean combined) {
+        GameContext.combined = combined;
+    }
+
+    public static ServerOption getOption() {
+        return option;
+    }
+
+    public static GameServer getGameServer() {
+        return gameServer;
+    }
+
+    public static BackServer getBackServer() {
+        return backServer;
+    }
+
+    public static int getServerId() {
+        return serverId;
+    }
+
+    public static int getServerType() {
+        return serverType;
+    }
+
+    public static boolean isServerCloseLogicExecuted() {
+        return serverCloseLogicExecuted;
+    }
+
+    public static void setServerCloseLogicExecuted(boolean serverCloseLogicExecuted) {
+        GameContext.serverCloseLogicExecuted = serverCloseLogicExecuted;
+    }
+
+    public static boolean isClosed() {
+        return closed;
+    }
+
+    public static void setClosed(boolean closed) {
+        GameContext.closed = closed;
+    }
+
+    public static boolean isDebug() {
+        return isDebug;
+    }
+
+    public static void setDebug(boolean debug) {
+        isDebug = debug;
+    }
+
+    public static boolean isFcm() {
+        return fcm;
+    }
+
+    public static void setFcm(boolean fcm) {
+        GameContext.fcm = fcm;
+    }
+
+    public static boolean isReady() {
+        return ready;
+    }
+
+    public static void setReady(boolean ready) {
+        GameContext.ready = ready;
     }
 }
