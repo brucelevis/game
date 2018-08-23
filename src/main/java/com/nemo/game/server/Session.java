@@ -42,6 +42,4 @@ public class Session {
     public boolean isRoleRegister(){
         return role != null;
     }
-
-
 }

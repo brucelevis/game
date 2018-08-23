@@ -1,5 +1,6 @@
 package com.nemo.game.map.scene;
 
+import com.nemo.concurrent.QueueDriver;
 import com.nemo.game.map.aoi.AOIEventListenerImpl;
 import com.nemo.game.map.aoi.TowerAOI;
 import com.nemo.game.map.obj.IMapObject;
@@ -35,6 +36,14 @@ public class GameMap {
 
     //存储游戏对象的map
     protected Map<Long, IMapObject> objectMap = new HashMap<>();
+
+
+
+
+    //队列驱动
+    protected QueueDriver driver;
+
+
 
     public IMapObject getObject(long id) {
         return objectMap.get(id);
@@ -93,6 +102,14 @@ public class GameMap {
 
     public boolean isCanCross() {
         return canCross;
+    }
+
+    public void setDriver(QueueDriver driver) {
+        this.driver = driver;
+    }
+
+    public QueueDriver getDriver() {
+        return driver;
     }
 
     //用于做一些额外的初始化工作 在各种地图中
