@@ -31,7 +31,7 @@ public class MapProcessor implements MessageProcessor{
             return;
         }
 
-        //设置新的队列id
+        //设置新的队列id 否则添加到队列时不接受
         message.setQueueId(actor.getMapId());
         //如果没登录地图 除了登录消息 别的消息不处理
         if(!player.isLoginMap()) {

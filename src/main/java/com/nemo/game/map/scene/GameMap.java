@@ -1,6 +1,7 @@
 package com.nemo.game.map.scene;
 
 import com.nemo.concurrent.QueueDriver;
+import com.nemo.concurrent.ScheduledEventDispatcher;
 import com.nemo.game.map.aoi.AOIEventListenerImpl;
 import com.nemo.game.map.aoi.TowerAOI;
 import com.nemo.game.map.obj.IMapObject;
@@ -42,6 +43,8 @@ public class GameMap {
 
     //队列驱动
     protected QueueDriver driver;
+    //定时任务
+    protected ScheduledEventDispatcher eventDispatcher;
 
 
 
@@ -110,6 +113,14 @@ public class GameMap {
 
     public QueueDriver getDriver() {
         return driver;
+    }
+
+    public void setEventDispatcher(ScheduledEventDispatcher eventDispatcher) {
+        this.eventDispatcher = eventDispatcher;
+    }
+
+    public ScheduledEventDispatcher getEventDispatcher() {
+        return eventDispatcher;
     }
 
     //用于做一些额外的初始化工作 在各种地图中

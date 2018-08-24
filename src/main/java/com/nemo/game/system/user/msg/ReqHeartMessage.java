@@ -1,9 +1,8 @@
 package com.nemo.game.system.user.msg;
 
-import com.sh.game.server.AbstractMessage;
-import com.sh.game.system.user.UserManager;
-import com.sh.net.kryo.KryoInput;
-import com.sh.net.kryo.KryoOutput;
+import com.nemo.game.server.AbstractMessage;
+import com.nemo.net.kryo.KryoInput;
+import com.nemo.net.kryo.KryoOutput;
 
 
 /**
@@ -13,7 +12,7 @@ public class ReqHeartMessage extends AbstractMessage {
 
 	@Override
 	public void doAction() {
-		UserManager.getInstance().clientHeart(session);
+//		UserManager.getInstance().clientHeart(session);
 	}
 	
 	public ReqHeartMessage() {

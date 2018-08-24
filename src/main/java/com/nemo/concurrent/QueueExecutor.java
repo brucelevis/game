@@ -41,7 +41,7 @@ public class QueueExecutor extends ThreadPoolExecutor{
         ICommandQueue<IQueueDriverCommand> queue = work.getCommandQueue();
         synchronized (queue) {
             IQueueDriverCommand nextCommand = queue.poll();
-            if(nextCommand == null) {
+            if(nextCommand == null) { //如果暂时没有下一个任务了 停止
                 queue.setRunning(false);
             } else {
                 this.execute(nextCommand);
