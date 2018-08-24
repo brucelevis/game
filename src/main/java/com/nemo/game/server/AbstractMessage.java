@@ -84,12 +84,14 @@ public abstract class AbstractMessage extends KryoBean implements Message {
     public void decode(byte[] bytes) {
         KryoInput input = KryoUtil.getInput();
         input.setBuffer(bytes);
+        //推迟到各个子类中实现 将子类的定义字段解码
         read(input);
     }
 
     @Override
     public byte[] encode() {
         KryoOutput output = KryoUtil.getOutput();
+        //推迟到各个子类中实现 将子类的定义字段编码
         write(output);
         return output.toBytesAndClear();
     }
@@ -97,10 +99,15 @@ public abstract class AbstractMessage extends KryoBean implements Message {
     @Override
     public void run() {
         try {
+            //过滤器
             if(filter != null && !filter.before(this)){
+                //...
                 return;
             }
             doAction();
+            if(filter != null && !filter.after(this)){
+                //...
+            }
         } catch (Throwable e) {
             LOGGER.error("命令执行错误", e);
         }
