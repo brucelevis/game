@@ -1,5 +1,6 @@
 package com.nemo.game;
 
+import com.nemo.game.data.DataCenter;
 import com.nemo.game.server.EventListener;
 import com.nemo.game.server.GameMessagePool;
 import com.nemo.game.server.MessageRouter;
@@ -33,7 +34,8 @@ public class GameServer {
         builder.setConsumer(router);
         //创建网络服务
         netWork = builder.createService(); //搭建NetworkerService 最根本是搭建netty服务所需的ServerBootstrap
-
+        //初始化数据中心
+        DataCenter.init(option);
 
 
 
