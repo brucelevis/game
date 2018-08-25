@@ -23,7 +23,7 @@ public class JdbcTemplate {
         this.pool = pool;
     }
 
-    public <T> T query(String sql, RowMapper<T> mapper, Object... parameters) {
+    public <T> T query(String sql, RowMapper<T> mapper, Object[] parameters) {
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -49,7 +49,7 @@ public class JdbcTemplate {
         return null;
     }
 
-    public <T> List<T> queryList(String sql, RowMapper<T> mapper, Object... parameters) {
+    public <T> List<T> queryList(String sql, RowMapper<T> mapper, Object[] parameters) {
         Connection conn = null;
         PreparedStatement pstmt = null;
         ResultSet rs = null;
@@ -77,7 +77,7 @@ public class JdbcTemplate {
         return Collections.emptyList();
     }
 
-    public int update(String sql, Object... parameters) {
+    public int update(String sql, Object[] parameters) {
         Connection conn = null;
         PreparedStatement pstmt = null;
 

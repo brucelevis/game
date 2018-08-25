@@ -5,6 +5,7 @@ import com.nemo.common.persist.Persistable;
 import com.nemo.game.data.DataType;
 import com.nemo.game.entity.User;
 
+//用户数据持久化工厂
 public class UserPersistFactory implements PersistFactory{
     private static final String INSERT = "INSERT INTO p_user (id, loginName, sid, pid, client, type, IDNumber, " +
             "regTime) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";

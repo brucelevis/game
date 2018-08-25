@@ -6,20 +6,28 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+//定时执行增删改的持久化任务 如果不是立即执行的操作可以放到这里
 public class PersistTask extends Thread{
     private static final Logger LOGGER = LoggerFactory.getLogger(PersistTask.class);
+    //批量操作限制数量 超过了就先执行一波
     private static final int BATCH_EXECUTE_MAX_SIZE = 300;
+    //添加和执行时的锁
     private final Object LOCK = new Object();
+    //所有需要执行的参数存放在这里，由PersistType获取对应语句来执行
     private Map<Long, PersistType> persistMap = new HashMap<>();
+    //每一条执行语句里的参数集
     private LinkedList<Object[]> insertParams = new LinkedList();
     private LinkedList<Object[]> updateParams = new LinkedList();
     private LinkedList<Object[]> deleteParams = new LinkedList();
+    //如果操作不成功 保存所有参数集 下一次再试图执行
     private List<Object[]> insertErrorParams = new LinkedList();
     private List<Object[]> updateErrorParams = new LinkedList();
     private List<Object[]> deleteErrorParams = new LinkedList();
+    //从持久化工厂里获取sql语句
     private String insertSql;
     private String updateSql;
     private String deleteSql;
+    //定义时传进来的JDBC模板 缓存 持久化工厂
     private JdbcTemplate template;
     private PersistableCache cache;
     private PersistFactory persistFactory;
@@ -64,12 +72,12 @@ public class PersistTask extends Thread{
         }
     }
 
-
-
     @Override
     public void run() {
         try {
-            this.rescueErrorUpdate();
+            //试图执行上次没成功的语句
+            rescueErrorUpdate();
+
             Map<Long, PersistType> cloneMap = new HashMap<>();
             synchronized (this.LOCK) {
                 cloneMap.putAll(this.persistMap);
@@ -78,11 +86,13 @@ public class PersistTask extends Thread{
 
             Iterator<Map.Entry<Long, PersistType>> it = cloneMap.entrySet().iterator();
             while (it.hasNext()) {
+                //要是超过了一定数量 先执行掉
                 this.checkAndUpdate();
                 Map.Entry<Long, PersistType> entry = it.next();
                 if(entry != null) {
                     Long id = entry.getKey();
                     if(id != null) {
+                        //通过主键从缓存中获取数据
                         Persistable data = this.cache.get(id.longValue());
                         if(data != null) {
                             PersistType type = entry.getValue();
@@ -100,7 +110,7 @@ public class PersistTask extends Thread{
                     }
                 }
             }
-
+            //批量操作
             this.finallyUpdate();
         } catch (Throwable var8) {
             LOGGER.error("持久化任务执行失败", var8);
@@ -142,7 +152,7 @@ public class PersistTask extends Thread{
             try {
                 this.template.batchUpdate(this.insertSql, this.insertParams);
             } catch (Exception var4) {
-                LOGGER.error("#################插入数据库失败，请立马重启###################");
+                LOGGER.error("插入数据库失败，请立马重启");
                 LOGGER.error(this.insertSql, var4);
                 this.insertErrorParams.addAll(this.insertParams);
             }
@@ -154,7 +164,7 @@ public class PersistTask extends Thread{
             try {
                 this.template.batchUpdate(this.updateSql, this.updateParams);
             } catch (Exception var3) {
-                LOGGER.error("#################更新数据库失败，请立马重启###################");
+                LOGGER.error("更新数据库失败，请立马重启");
                 LOGGER.error(this.updateSql, var3);
                 this.updateErrorParams.addAll(this.updateParams);
             }
@@ -166,7 +176,7 @@ public class PersistTask extends Thread{
             try {
                 this.template.batchUpdate(this.deleteSql, this.deleteParams);
             } catch (Exception var2) {
-                LOGGER.error("#################删除数据库失败，请立马重启###################");
+                LOGGER.error("删除数据库失败，请立马重启");
                 LOGGER.error(this.deleteSql, var2);
                 this.deleteErrorParams.addAll(this.deleteParams);
             }
@@ -180,7 +190,7 @@ public class PersistTask extends Thread{
             try {
                 this.template.batchUpdate(this.insertSql, this.insertParams);
             } catch (Exception var4) {
-                LOGGER.error("#################插入数据库失败，请立马重启###################");
+                LOGGER.error("插入数据库失败，请立马重启");
                 LOGGER.error(insertSql, var4);
                 this.insertErrorParams.addAll(this.insertParams);
             }
@@ -192,7 +202,7 @@ public class PersistTask extends Thread{
             try {
                 this.template.batchUpdate(this.updateSql, this.updateParams);
             } catch (Exception var3) {
-                LOGGER.error("#################更新数据库失败，请立马重启###################");
+                LOGGER.error("更新数据库失败，请立马重启");
                 LOGGER.error(updateSql, var3);
                 this.updateErrorParams.addAll(this.updateParams);
             }
@@ -204,7 +214,7 @@ public class PersistTask extends Thread{
             try {
                 this.template.batchUpdate(this.deleteSql, this.deleteParams);
             } catch (Exception var2) {
-                LOGGER.error("#################删除数据库失败，请立马重启###################");
+                LOGGER.error("删除数据库失败，请立马重启");
                 LOGGER.error(deleteSql, var2);
                 this.deleteErrorParams.addAll(this.deleteParams);
             }

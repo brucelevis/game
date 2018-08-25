@@ -4,7 +4,7 @@ import com.nemo.common.jdbc.ConnectionPool;
 import com.nemo.common.jdbc.DruidConnectionPool;
 import com.nemo.common.jdbc.JdbcTemplate;
 import com.nemo.game.data.IDataProvider;
-import com.nemo.game.data.mysql.factory.UserPersistFactory;
+import com.nemo.game.data.mysql.factory.*;
 import com.nemo.game.server.ServerOption;
 import com.nemo.game.util.JdbcUtil;
 
@@ -28,6 +28,16 @@ public class MysqlDataProviderProxy implements IDataProvider{
 
         //注册factory
         provider.registerPersistTask(new UserPersistFactory());
+        provider.registerPersistTask(new RolePersistFactory());
+        provider.registerPersistTask(new BagPersistFactory());
+        provider.registerPersistTask(new CountPersistFactory());
+        provider.registerPersistTask(new SysDataPersistFactory());
+        provider.registerPersistTask(new SysUnionPersistFactory());
+        provider.registerPersistTask(new RankPersistFactory());
+        provider.registerPersistTask(new RankHeroPersistFactory());
+        provider.registerPersistTask(new OrderPersistFactory());
+        provider.registerPersistTask(new RoleMailPersistFactory());
+        provider.registerPersistTask(new AnnouncePersistFactory());
 
 
 

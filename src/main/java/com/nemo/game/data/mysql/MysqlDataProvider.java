@@ -21,7 +21,7 @@ public class MysqlDataProvider {
     private static final int EXECUTOR_CORE_SIZE = 8;
     //持久化任务map
     private Map<Integer, PersistTask> persistTaskMap = new HashMap<>();
-
+    //缓存map
     private Map<Integer, PersistableCache> cacheMap = new HashMap<>();
     //JDBC模板类
     private JdbcTemplate template;
@@ -40,12 +40,14 @@ public class MysqlDataProvider {
         });
     }
 
-    //注册一个持久化任务
     public void registerPersistTask(PersistFactory persistFactory) {
+        //创建对应缓存
         PersistableCache cache = new PersistableCache(this.template, 10000);
         cacheMap.put(persistFactory.dataType(), cache);
+        //注册一个持久化任务
         PersistTask task = new PersistTask(template, persistFactory, cache);
         persistTaskMap.put(persistFactory.dataType(), task);
+        //初始延迟10s后以工厂定义的频率执行任务
         executor.scheduleAtFixedRate(task, 10*1000, persistFactory.taskPeriod(), TimeUnit.MILLISECONDS);
     }
 

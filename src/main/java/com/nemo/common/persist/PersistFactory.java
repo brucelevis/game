@@ -1,5 +1,6 @@
 package com.nemo.common.persist;
 
+//包装了增删改语句的工厂
 public interface PersistFactory {
     String name();
 
