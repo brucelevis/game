@@ -8,6 +8,7 @@ import com.nemo.game.system.user.UserManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+//Netty断开连接事件里处理离线逻辑
 public class LogoutCommand extends AbstractCommand{
     private static final Logger LOGGER = LoggerFactory.getLogger(LogoutCommand.class);
 
