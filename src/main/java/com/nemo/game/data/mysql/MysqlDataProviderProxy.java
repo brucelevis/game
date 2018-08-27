@@ -290,7 +290,7 @@ public class MysqlDataProviderProxy implements IDataProvider{
 
     @Override
     public List<Rank> getRankList(String type, String timeType) {
-        List<Rank> rankList = this.template.queryList("select id, name, allFightPower, allLevel, achievement, " +
+        List<Rank> rankList = template.queryList("select id, name, allFightPower, allLevel, achievement, " +
                 "vitality, pk, time_fp, time_lv, time_ac, time_vt, time_pk from s_rank order by "
                 + type + " desc , " + timeType + " asc limit 0,100", new RankMapper());
         return rankList;
@@ -298,7 +298,7 @@ public class MysqlDataProviderProxy implements IDataProvider{
 
     @Override
     public List<RankHero> getRankHeroList(int career) {
-        List<RankHero> rankList = this.template.queryList("select id, rid, name, career, fightPower, lv, `time` from s_rank_hero " +
+        List<RankHero> rankList = template.queryList("select id, rid, name, career, fightPower, lv, `time` from s_rank_hero " +
                 "where career = ? order by fightPower desc , `time` asc limit 0,100", new RankHeroMapper(), career);
         return rankList;
     }
@@ -310,7 +310,7 @@ public class MysqlDataProviderProxy implements IDataProvider{
 
     @Override
     public Announce getAnnounce(long id) {
-        return this.template.query("select id, uniqueId, startTime, endTime, period, type, content from s_announce where id = ?",
+        return template.query("select id, uniqueId, startTime, endTime, period, type, content from s_announce where id = ?",
                 new AnnounceMapper(), id);
     }
 }

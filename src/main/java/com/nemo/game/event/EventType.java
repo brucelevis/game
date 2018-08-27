@@ -22,38 +22,18 @@ public enum EventType {
     SERVER_HOUR20, // 20点事件 预留
     SERVER_HOUR21, //21点事件  预留
 
-    /**
-     * 释放技能前
-     */
+    //释放技能前
     BEFORE_SKILL,
-
-    /**
-     * 被攻击
-     */
+    //被攻击
     AFTER_HURT,
-
-    /**
-     * 释放技能后
-     */
+    //释放技能后
     AFTER_SKILL,
-
-    /**
-     * 怪物死亡
-     */
+    //怪物死亡
     MONSTER_DIE,
-
-    /**
-     * 进入地图
-     */
+    //进入地图
     ENTER_MAP,
-
-    /**
-     *退出地图
-     */
+    //退出地图
     QUIT_MAP,
-
-    /**
-     * 格子站立事件
-     */
+    //格子站立事件
     STAND,
 }
