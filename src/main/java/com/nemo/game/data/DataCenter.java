@@ -1,5 +1,6 @@
 package com.nemo.game.data;
 
+import com.nemo.common.persist.Cacheable;
 import com.nemo.game.data.mysql.MysqlDataProviderProxy;
 import com.nemo.game.server.ServerOption;
 
@@ -10,6 +11,15 @@ public class DataCenter {
     public static void init(ServerOption option) throws Exception {
         //数据库代理类
         provider = new MysqlDataProviderProxy(option);
+    }
+
+    //更新数据到磁盘
+    public static void updateData(Cacheable cache, boolean immediately) {
+        provider.updateData(cache, immediately);
+    }
+
+    public static void updateData(Cacheable cache) {
+        provider.updateData(cache, false);
     }
 
 

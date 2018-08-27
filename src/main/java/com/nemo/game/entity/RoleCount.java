@@ -2,9 +2,13 @@ package com.nemo.game.entity;
 
 import com.nemo.common.persist.Persistable;
 import com.nemo.game.data.DataType;
+import com.nemo.game.system.count.entity.Count;
 import io.protostuff.Exclude;
 import io.protostuff.Tag;
 import lombok.Data;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Data
 public class RoleCount implements Persistable {
@@ -13,6 +17,9 @@ public class RoleCount implements Persistable {
 
     @Tag(1)
     private long id;
+
+    @Tag(2)
+    private Map<String, Count> countMap = new ConcurrentHashMap<>();
 
     @Override
     public long getId() {
