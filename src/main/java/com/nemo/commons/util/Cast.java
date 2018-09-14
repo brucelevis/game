@@ -1,5 +1,7 @@
 package com.nemo.commons.util;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class Cast {
 
     public static int toInteger(Object str) {
@@ -9,6 +11,29 @@ public class Cast {
             return ((Number)str).intValue();
         } else {
             return str instanceof Integer ? ((Integer)str).intValue() : toInteger(str.toString());
+        }
+    }
+
+    public static double toDouble(Object number) {
+        if(number == null) {
+            return 0.0D;
+        } else if(number instanceof Number) {
+            return ((Number)number).doubleValue();
+        } else if(number instanceof String) {
+            String str = (String)number;
+            return isNumeric(str) > 0 ? Double.valueOf(str).doubleValue() : 0.0D;
+        } else {
+            return 0.0D;
+        }
+    }
+
+    public static long toLong(Object number) {
+        if(number == null) {
+            return 0L;
+        } else if(number instanceof Number) {
+            return ((Number)number).longValue();
+        } else {
+            return number instanceof String ? Long.valueOf((String)number).longValue() : 0L;
         }
     }
 
@@ -64,6 +89,17 @@ public class Cast {
 
     public static long combineInt2Long(int low, int high) {
         return (long)low & 4294967295L | (long)high << 32 & -4294967296L;
+    }
+
+    public static int[] stringToInts(String str, String regex) {
+        String[] arr = str.split(regex);
+        int length = arr.length;
+        int[] ret = new int[length];
+
+        for(int i = 0; i < length; i++) {
+            ret[i] = toInteger(arr[i]);
+        }
+        return ret;
     }
 
     public static void main(String[] args) {

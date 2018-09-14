@@ -11,7 +11,7 @@ import java.util.Map;
 public class ConfigDataManager {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigDataManager.class);
     private static final ConfigDataManager INSTANCE = new ConfigDataManager();
-    private final Map<Class<?>, ConfigDataContainter<?>> configContainters = new HashMap<>();
+    private final Map<Class<?>, ConfigDataContainer<?>> configContainters = new HashMap<>();
 
     public static ConfigDataManager getInstance() {
         return INSTANCE;
@@ -24,13 +24,13 @@ public class ConfigDataManager {
         String xmlPath = "data_config.xml";
 
         try {
-            List<ConfigDataContainter<?>> configDatas = ConfigDataXmlParser.parse(xmlPath);
+            List<ConfigDataContainer<?>> configDatas = ConfigDataXmlParser.parse(xmlPath);
             LOGGER.info("配置条数：" + configDatas.size());
-            Iterator<ConfigDataContainter<?>> var4 = configDatas.iterator();
+            Iterator<ConfigDataContainer<?>> var4 = configDatas.iterator();
 
             while (var4.hasNext()) {
-                ConfigDataContainter<?> containter = var4.next();
-                containter.load(path);
+                ConfigDataContainer<?> container = var4.next();
+                container.load(path);
 
 
             }

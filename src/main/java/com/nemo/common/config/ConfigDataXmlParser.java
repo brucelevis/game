@@ -13,7 +13,7 @@ import java.util.*;
 
 public class ConfigDataXmlParser {
 
-    public static List<ConfigDataContainter<?>> parse(String path) throws DocumentException, FileNotFoundException,
+    public static List<ConfigDataContainer<?>> parse(String path) throws DocumentException, FileNotFoundException,
             ClassNotFoundException, InstantiationException, IllegalAccessException {
         SAXReader saxReader = new SAXReader();
         InputStream inputStream = FileLoaderUtil.findInputStreamByFileName(path);
@@ -21,7 +21,7 @@ public class ConfigDataXmlParser {
         Document document = saxReader.read(inputStream);
         //获取根元素 文件中是configs
         Element root = document.getRootElement();
-        List<ConfigDataContainter<?>> ret = new ArrayList();
+        List<ConfigDataContainer<?>> ret = new ArrayList();
         //遍历根元素的configdata子元素
         Iterator data = root.elementIterator("configdata");
 
@@ -43,13 +43,14 @@ public class ConfigDataXmlParser {
                 //获取子元素cahches
                 List<String> cacheList = parseCaches(config);
                 Class<?> clazz = Class.forName(className);
-                ConfigDataContainter<?> containter = new ConfigDataContainter(clazz, file, key, converterMap, cacheList, globalConverter);
-                ret.add(containter);
+                ConfigDataContainer<?> container = new ConfigDataContainer(clazz, file, key, converterMap, cacheList, globalConverter);
+                ret.add(container);
             }
         }
         return ret;
     }
 
+    //子元素转换器
     private static Map<String, IConverter> parseConvert(Element config) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         Map<String, IConverter> converterMap = new HashMap<>();
         Iterator convertIt = config.elementIterator("convert");
@@ -82,6 +83,7 @@ public class ConfigDataXmlParser {
         }
     }
 
+    //所有属性都用到的转换器
     private static IConverter parseGlobalConverter(Element config) throws ClassNotFoundException, InstantiationException,
             IllegalAccessException {
         String globalConverterClasssName = config.attributeValue("converter");
