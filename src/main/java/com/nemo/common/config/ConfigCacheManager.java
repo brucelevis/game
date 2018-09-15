@@ -1,6 +1,8 @@
 package com.nemo.common.config;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class ConfigCacheManager {
@@ -13,4 +15,41 @@ public class ConfigCacheManager {
     public static ConfigCacheManager getInstance() {
         return INSTANCE;
     }
+
+    public void init(String path) {
+        try {
+            List<IConfigCache> list = ConfigDataXmlParser.parseCache(path);
+            Iterator<IConfigCache> var3 = list.iterator();
+
+            while (var3.hasNext()) {
+                IConfigCache cache = var3.next();
+                cache.build(); //缓存逻辑
+                this.caches.put(cache.getClass(), cache);
+            }
+        } catch (Exception var5) {
+            throw new RuntimeException("全局缓存初始化失败", var5);
+        }
+    }
+
+    public void init(String path, List<Class<?>> cacheList) {
+        try {
+            List<IConfigCache> list = ConfigDataXmlParser.parseCache(path);
+            Iterator<IConfigCache> var4 = list.iterator();
+
+            while (var4.hasNext()) {
+                IConfigCache cache = var4.next();
+                if(cacheList.contains(cache.getClass())) {
+                    cache.build(); //缓存逻辑
+                    this.caches.put(cache.getClass(), cache);
+                }
+            }
+        } catch (Exception var6) {
+            throw new RuntimeException("全局缓存初始化失败", var6);
+        }
+    }
+
+    public <T extends IConfigCache> T getCache(Class<T> clazz) {
+        return (T)this.caches.get(clazz);
+    }
+
 }

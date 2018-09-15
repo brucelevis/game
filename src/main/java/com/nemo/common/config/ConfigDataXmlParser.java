@@ -64,6 +64,37 @@ public class ConfigDataXmlParser {
         return ret;
     }
 
+    public static List<IConfigCache> parseCache(String path) throws DocumentException, FileNotFoundException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        SAXReader saxReader = new SAXReader();
+        InputStream inputStream = FileLoaderUtil.findInputStreamByFileName(path);
+
+        Document document = saxReader.read(inputStream);
+        Element root = document.getRootElement();
+        List<IConfigCache> ret = new ArrayList<>();
+        Iterator<Element> data = root.elementIterator(CONFIGCACHES);
+
+        while (data.hasNext()) {
+            Element configCaches = data.next();
+            Iterator<Element> it = configCaches.elementIterator(CONFIGCACHE);
+
+            while (it.hasNext()) {
+                Element config = it.next();
+                String className = config.attributeValue(CLAZZ);
+                Class<?> clazz = Class.forName(className);
+                int size = clazz.getInterfaces().length;
+
+                for(int i = 0; i < size; i++) {
+                    if(clazz.getInterfaces()[i].getName().equals("com.nemo.common.config.IConfigCache")) {
+                        IConfigCache cache = (IConfigCache) clazz.newInstance();
+                        ret.add(cache);
+                    }
+                }
+            }
+        }
+
+        return ret;
+    }
+
     //子元素转换器
     private static Map<String, IConverter> parseConvert(Element config) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         Map<String, IConverter> converterMap = new HashMap<>();
@@ -98,8 +129,7 @@ public class ConfigDataXmlParser {
     }
 
     //所有属性都用到的转换器
-    private static IConverter parseGlobalConverter(Element config) throws ClassNotFoundException, InstantiationException,
-            IllegalAccessException {
+    private static IConverter parseGlobalConverter(Element config) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         String globalConverterClasssName = config.attributeValue(CONVERTER);
         IConverter globalConverter = null;
         if(!StringUtils.isEmpty(globalConverterClasssName)) {
@@ -109,5 +139,32 @@ public class ConfigDataXmlParser {
         return globalConverter;
     }
 
+    public static Class<?> getClazz(String path, String fileName) throws DocumentException, FileNotFoundException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+        SAXReader saxReader = new SAXReader();
+        InputStream inputStream = FileLoaderUtil.findInputStreamByFileName(path);
+        Document document = saxReader.read(inputStream);
+        Element root = document.getRootElement();
+        Class<?> ret = null;
+        Iterator<Element> data = root.elementIterator(CONFIGDATA);
 
+        while (true) {
+            while (data.hasNext()) {
+                Element configdata = data.next();
+                Iterator<Element> it = configdata.elementIterator(CONFIG);
+
+                while (it.hasNext()) {
+                    Element config = it.next();
+                    String className = config.attributeValue(CLAZZ);
+                    String file = config.attributeValue(FILE);
+                    if(fileName.equals(file)) {
+                        Class<?> clazz = Class.forName(className);
+                        ret = clazz;
+                        break;
+                    }
+                }
+            }
+
+            return ret;
+        }
+    }
 }

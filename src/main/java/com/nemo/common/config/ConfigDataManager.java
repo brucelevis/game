@@ -38,11 +38,7 @@ public class ConfigDataManager {
             throw new RuntimeException(var6);
         }
 
-
-
-
-
-
+        ConfigCacheManager.getInstance().init(xmlPath);
     }
 
 
