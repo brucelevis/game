@@ -31,13 +31,13 @@ public class ConfigDataManager {
             while (var4.hasNext()) {
                 ConfigDataContainer<?> container = var4.next();
                 container.load(path);
-
-
+                this.configContainters.put(container.getClazz(), container);
             }
         } catch (Exception var6) {
             LOGGER.error("加载配置文件失败...", var6);
             throw new RuntimeException(var6);
         }
+
 
 
 

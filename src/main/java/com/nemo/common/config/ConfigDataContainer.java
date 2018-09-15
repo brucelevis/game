@@ -11,6 +11,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
+//每一类数据容器
 public class ConfigDataContainer<T extends IConfigData> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigDataContainer.class);
     public static final String DEFAULT_CACHE = "default";
@@ -19,7 +20,7 @@ public class ConfigDataContainer<T extends IConfigData> {
     public static Set<String> errKey = new HashSet<>();
     private Class<T> clazz;
     private String fileName;
-    private String key;
+    private String key; //查找的主键
     private List<String> extraKeyList;
     private Map<String, IConverter> converterMap;
     private IConverter globalConverter;
@@ -37,6 +38,27 @@ public class ConfigDataContainer<T extends IConfigData> {
         this.clazz = clazz;
     }
 
+    public T getByIdAndCacheName(String cacheName, Object key) {
+        Map<Object, T> cache = this.mapCaches.get(cacheName);
+        return cache == null ? null : cache.get(key);
+    }
+
+    public boolean containsKey(String cacheName, Object key) {
+        Map<Object, T> cache = this.mapCaches.get(cacheName);
+        return cache == null ? null : cache.containsKey(key);
+    }
+
+    public List<T> getList() {
+        return this.list;
+    }
+
+    public Map<Object, T> getMap(String cacheName) {
+        Map<Object, T> ret = this.mapCaches.get(cacheName);
+        return ret == null ? Collections.emptyMap() : ret;
+    }
+
+    public void reload() {
+    }
 
     public void load(String filePath) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
         String file = filePath + this.fileName + ".csv";
@@ -53,9 +75,117 @@ public class ConfigDataContainer<T extends IConfigData> {
             list.add(config);
         }
 
+        //主键索引map 默认
+        Map<String, Map<Object, T>> mapCaches = new HashMap<>();
+        defaultCache = this.buildCache(list, this.key);
+        mapCaches.put(DEFAULT_CACHE, defaultCache);
 
+        //caches子元素配置的索引map
+        Iterator<String> var11 = this.extraKeyList.iterator();
+        while (var11.hasNext()) {
+            String key = var11.next();
+            Map<Object, T> cache = this.buildCache(list, key);
+            mapCaches.put(key, cache);
+        }
 
+        this.mapCaches = mapCaches;
         this.list = list;
+        this.afterLoad();
+        errKey.clear();
+    }
+
+    //根据给定key创建map索引
+    public Map<Object, T> buildCache(List<T> list, String key) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        String[] keys = key.split("#");
+        PropertyDesc[] descs = new PropertyDesc[keys.length];
+
+        for(int i = 0; i < keys.length; i++) {
+            String keyField = keys[i];
+            PropertyDesc desc = ReflectUtil.getPropertyDesc(this.clazz, keyField);
+            if(desc == null || desc.getReadMethod() == null) {
+                LOGGER.error("配置表：" + this.fileName + "中的" + keyField + " 字段在" + this.clazz.getName() + "没有找到setter和getter方法");
+                return Collections.emptyMap();
+            }
+            descs[i] = desc;
+        }
+
+        Map<Object, T> cache = new HashMap<>();
+        Iterator<T> var10 = list.iterator();
+
+        while (var10.hasNext()) {
+            T t = var10.next();
+            Object value = this.buildKey(t, descs);
+            cache.put(value, t);
+        }
+
+        return cache;
+    }
+
+    //反射获得对应索引值
+    public Object buildKey(T object, PropertyDesc[] descs) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        if(descs.length == 1) {
+            return descs[0].getReadMethod().invoke(object);
+        } else {
+            StringBuilder key = new StringBuilder();
+
+            for(int i = 0; i < descs.length; i++) {
+                PropertyDesc desc = descs[i];
+                Object v = desc.getReadMethod().invoke(object);
+                key.append(v.toString());
+                key.append("#");
+            }
+            if(key.length() > 0) {
+                key.deleteCharAt(key.length() - 1);
+            }
+
+            return key.toString();
+        }
+    }
+
+    public Class<T> getClazz() {
+        return this.clazz;
+    }
+
+    private Object convertValue(PropertyDesc desc, String oldValue) {
+        Object value = oldValue;
+        if(this.converterMap.containsKey(desc.getName())) {
+            IConverter converter = this.converterMap.get(desc.getName());
+            value = converter.convert(oldValue);
+        } else if(desc.getPropertyType() != Integer.TYPE && desc.getPropertyType() != Integer.class) { //不是int和Integer class对象
+            if(desc.getPropertyType() != Long.TYPE && desc.getPropertyType() != Long.class) {
+                if (desc.getPropertyType() != Float.TYPE && desc.getPropertyType() != Float.class) {
+                    if (desc.getPropertyType() != Double.TYPE && desc.getPropertyType() != Double.class) {
+                        //#分割的可以转换为int[]和String[]
+                        if(desc.getPropertyType() == int[].class) {
+                            if(StringUtils.isEmpty(oldValue)) {
+                                value = new int[0];
+                            } else {
+                                value = Cast.stringToInts(oldValue, "#");
+                            }
+                        } else if(desc.getPropertyType() == String[].class) {
+                            if(StringUtils.isEmpty(oldValue)) {
+                                value = new String[0];
+                            } else {
+                                value = oldValue.split("#");
+                            }
+                        }
+                    } else {
+                        value = Cast.toDouble(oldValue);
+                    }
+                } else {
+                    if(StringUtils.isEmpty(oldValue)) {
+                        oldValue = "0.0";
+                    }
+                    value = Float.parseFloat(oldValue);
+                }
+            } else {
+                value = Cast.toLong(oldValue);
+            }
+        } else {
+            value = Cast.toInteger(oldValue);
+        }
+
+        return value;
     }
 
     private T converterObject(Map<String, String> data) throws InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
@@ -102,46 +232,24 @@ public class ConfigDataContainer<T extends IConfigData> {
         }
     }
 
-    private Object convertValue(PropertyDesc desc, String oldValue) {
-        Object value = oldValue;
-        if(this.converterMap.containsKey(desc.getName())) {
-            IConverter converter = this.converterMap.get(desc.getName());
-            value = converter.convert(oldValue);
-        } else if(desc.getPropertyType() != Integer.TYPE && desc.getPropertyType() != Integer.class) { //不是int和Integer class对象
-            if(desc.getPropertyType() != Long.TYPE && desc.getPropertyType() != Long.class) {
-                if (desc.getPropertyType() != Float.TYPE && desc.getPropertyType() != Float.class) {
-                    if (desc.getPropertyType() != Double.TYPE && desc.getPropertyType() != Double.class) {
-                        //#分割的可以转换为int[]和String[]
-                        if(desc.getPropertyType() == int[].class) {
-                            if(StringUtils.isEmpty(oldValue)) {
-                                value = new int[0];
-                            } else {
-                                value = Cast.stringToInts(oldValue, "#");
-                            }
-                        } else if(desc.getPropertyType() == String[].class) {
-                            if(StringUtils.isEmpty(oldValue)) {
-                                value = new String[0];
-                            } else {
-                                value = oldValue.split("#");
-                            }
-                        }
-                    } else {
-                        value = Cast.toDouble(oldValue);
-                    }
-                } else {
-                    if(StringUtils.isEmpty(oldValue)) {
-                        oldValue = "0.0";
-                    }
-                    value = Float.parseFloat(oldValue);
-                }
-            } else {
-                value = Cast.toLong(oldValue);
-            }
-        } else {
-            value = Cast.toInteger(oldValue);
-        }
+    private void afterLoad() {
+        Iterator<T> var1 = this.list.iterator();
 
-        return value;
+        while (var1.hasNext()) {
+            IConfigData configData = var1.next();
+            configData.afterLoad();
+        }
     }
 
+    public String getFileName() {
+        return this.fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public void setClazz(Class<T> clazz) {
+        this.clazz = clazz;
+    }
 }

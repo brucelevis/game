@@ -12,9 +12,23 @@ import java.io.InputStream;
 import java.util.*;
 
 public class ConfigDataXmlParser {
+    private static final String CONFIG = "config";
+    private static final String CLAZZ = "class";
+    private static final String FILE = "file";
+    private static final String KEY = "key";
+    private static final String CONVERT = "convert";
+    private static final String CONVERTER = "converter";
+    private static final String FIELD = "field";
+    private static final String CACHES = "caches";
+    private static final String MAP = "map";
+    private static final String CONFIGCACHES = "configcaches";
+    private static final String CONFIGCACHE = "configcache";
+    private static final String CONFIGDATA = "configdata";
 
-    public static List<ConfigDataContainer<?>> parse(String path) throws DocumentException, FileNotFoundException,
-            ClassNotFoundException, InstantiationException, IllegalAccessException {
+    public ConfigDataXmlParser(){
+    }
+
+    public static List<ConfigDataContainer<?>> parse(String path) throws DocumentException, FileNotFoundException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         SAXReader saxReader = new SAXReader();
         InputStream inputStream = FileLoaderUtil.findInputStreamByFileName(path);
         //从xml文件获取数据
@@ -23,19 +37,19 @@ public class ConfigDataXmlParser {
         Element root = document.getRootElement();
         List<ConfigDataContainer<?>> ret = new ArrayList();
         //遍历根元素的configdata子元素
-        Iterator data = root.elementIterator("configdata");
+        Iterator data = root.elementIterator(CONFIGDATA);
 
         while (data.hasNext()) {
             Element configdata = (Element)data.next();
             //遍历config元素
-            Iterator it = configdata.elementIterator("config");
+            Iterator it = configdata.elementIterator(CONFIG);
 
             while (it.hasNext()) {
                 Element config = (Element)it.next();
                 //获取属性
-                String className = config.attributeValue("class");
-                String file = config.attributeValue("file");
-                String key = config.attributeValue("key");
+                String className = config.attributeValue(CLAZZ);
+                String file = config.attributeValue(FILE);
+                String key = config.attributeValue(KEY);
                 //获取属性定义的转换器
                 IConverter globalConverter = parseGlobalConverter(config);
                 //获取子元素定义的转换器
@@ -53,12 +67,12 @@ public class ConfigDataXmlParser {
     //子元素转换器
     private static Map<String, IConverter> parseConvert(Element config) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
         Map<String, IConverter> converterMap = new HashMap<>();
-        Iterator convertIt = config.elementIterator("convert");
+        Iterator convertIt = config.elementIterator(CONVERT);
 
         while (convertIt.hasNext()) {
             Element convert = (Element) convertIt.next();
-            String field = convert.attributeValue("field");
-            String converterClassName = convert.attributeValue("converter");
+            String field = convert.attributeValue(FIELD);
+            String converterClassName = convert.attributeValue(CONVERTER);
             Class<?> converterClass = Class.forName(converterClassName);
             IConverter converter = (IConverter) converterClass.newInstance();
             converterMap.put(field, converter);
@@ -69,14 +83,14 @@ public class ConfigDataXmlParser {
 
     private static List<String> parseCaches(Element config) {
         List<String> ret = new ArrayList<>();
-        Element caches = config.element("caches");
+        Element caches = config.element(CACHES);
         if(caches == null) {
             return ret;
         } else {
-            Iterator<Element> mapIt = caches.elementIterator("map");
+            Iterator<Element> mapIt = caches.elementIterator(MAP);
             while (mapIt.hasNext()) {
                 Element map = mapIt.next();
-                String key = map.attributeValue("key");
+                String key = map.attributeValue(KEY);
                 ret.add(key);
             }
             return ret;
@@ -86,7 +100,7 @@ public class ConfigDataXmlParser {
     //所有属性都用到的转换器
     private static IConverter parseGlobalConverter(Element config) throws ClassNotFoundException, InstantiationException,
             IllegalAccessException {
-        String globalConverterClasssName = config.attributeValue("converter");
+        String globalConverterClasssName = config.attributeValue(CONVERTER);
         IConverter globalConverter = null;
         if(!StringUtils.isEmpty(globalConverterClasssName)) {
             Class<?> globalConverterClasss = Class.forName(globalConverterClasssName);

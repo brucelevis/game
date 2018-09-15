@@ -1,7 +1,5 @@
 package com.nemo.commons.util;
 
-import org.apache.commons.lang3.StringUtils;
-
 public class Cast {
 
     public static int toInteger(Object str) {
@@ -55,6 +53,7 @@ public class Cast {
         }
     }
 
+    //是否数值
     public static int isNumeric(String str) {
         if(str == null) {
             return 0;
