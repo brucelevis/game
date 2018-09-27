@@ -64,5 +64,37 @@ public class ReflectUtil {
         return pd;
     }
 
+    public static Method getMethod(Class<?> clazz, String methodName, Class... parameterTypes) throws SecurityException, NoSuchMethodException {
+        StringBuilder sb = new StringBuilder();
+        sb.append(clazz.getName()).append(".").append(methodName);
+        if(parameterTypes != null) {
+            Class[] var4 = parameterTypes;
+            int var5 = parameterTypes.length;
+
+            for(int var6 = 0; var6 < var5; ++var6) {
+                Class<?> pcls = var4[var6];
+                sb.append(".").append(pcls.getName());
+            }
+        }
+
+        String key = sb.toString();
+        Method method = methodCache.get(key);
+        if(method == null) {
+            method = clazz.getMethod(methodName, parameterTypes);
+            if(method != null) {
+                methodCache.putIfAbsent(key, method);
+            }
+        }
+        return method;
+    }
+
+    public static boolean isClassExtends(Class<?> targetClazz, Class<?> superClazz) {
+        for(Class clazz = targetClazz.getSuperclass(); clazz != null; clazz = clazz.getSuperclass()) {
+            if(clazz == superClazz) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }

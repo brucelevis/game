@@ -39,6 +39,8 @@ public class GameServer {
         DataCenter.init(option);
         //初始化配置表
         ConfigDataManager.getInstance().init(option.getConfigDataPath());
+        //初始化日志服务
+
 
 
 

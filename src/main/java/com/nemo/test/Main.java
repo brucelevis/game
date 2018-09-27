@@ -145,6 +145,9 @@ public class Main {
 
         int i = 1998 * 25000 / 10000;
         System.out.println(i);
+
+        char a = 0b1111;
+        System.out.println(a);
     }
 
 }
