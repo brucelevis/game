@@ -29,7 +29,7 @@ public interface RowMapper<T> {
             }
 
             int column = rsmd.getColumnCount();
-            for(int i = 0; i <= column; ++i) {
+            for(int i = 1; i <= column; ++i) {
                 ret.put(rsmd.getColumnName(i), rs.getObject(i));
             }
 

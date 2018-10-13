@@ -141,13 +141,21 @@ public class Main {
         }
         System.out.println("已完成");
         String s = futureTask.get();
-        System.out.println(s);
+//        System.out.println(s);
 
         int i = 1998 * 25000 / 10000;
-        System.out.println(i);
+//        System.out.println(i);
 
-        char a = 0b1111;
-        System.out.println(a);
+        char a = 10000;
+        System.out.println(Long.toBinaryString(a));
+//        for(; a < 10000; a++) {
+//            System.out.println(a);
+//            System.out.println(Integer.toBinaryString(a));
+//            System.out.println(a & 65280);
+//        }
+        int mod = 4;
+        mod %= 3;
+        System.out.println(mod);
     }
 
 }

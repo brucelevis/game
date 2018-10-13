@@ -1,11 +1,13 @@
 package com.nemo.game.config.model;
 
+import com.nemo.common.config.AbstractConfigData;
+import com.nemo.common.config.IConfigData;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class MapConfig {
+public class MapConfig extends AbstractConfigData{
     /**
      * 地图id
      */

@@ -71,7 +71,7 @@ public class ConfigDataContainer<T extends IConfigData> {
         while (var5.hasNext()) {
             defaultCache = var5.next();
             //将每一行的数据拼装成一个对象
-            T config = (T)converterObject(defaultCache);
+            T config = (T)this.converterObject(defaultCache);
             list.add(config);
         }
 

@@ -31,11 +31,10 @@ public class ConfigDataManager {
 
     public <T extends IConfigData> boolean containsKey(Class<T> clazz, String cacheName, Object id) {
         ConfigDataContainer<T> container = (ConfigDataContainer) this.configContainters.get(clazz);
-        return container == null ? null : container.containsKey(cacheName, id);
+        return container == null ? false : container.containsKey(cacheName, id);
     }
 
     public <T extends IConfigData> boolean containsKey(Class<T> clazz, Object id) {
-        ConfigDataContainer<T> container = (ConfigDataContainer) this.configContainters.get(clazz);
         return this.containsKey(clazz, "default", id);
     }
 
