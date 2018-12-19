@@ -18,6 +18,8 @@ public class GameContext {
     private static int serverId;
 
     private static int serverType;
+
+    private static boolean ready;
     //开服日期
     private static LocalDateTime openTime;
     //开服当天0点时间戳
@@ -45,14 +47,13 @@ public class GameContext {
     //是否防沉迷
     private static boolean fcm = false;
 
-    private static boolean ready;
-
     public static void init(ServerOption option) {
         GameContext.option = option;
         serverId = option.getServerId();
         serverType = option.getServerType();
         openTime = option.getOpenTime();
         isDebug = option.isDebug();
+
         //开服日期时间戳
         long openTimeMills = openTime.atZone(ZoneId.systemDefault()).toEpochSecond() * 1000;
         openDayZeroTime = TimeUtil.dayZeroMillsFromTime(openTimeMills);
@@ -79,6 +80,9 @@ public class GameContext {
     public static GameServer createGameServer() {
         try {
             gameServer = new GameServer(option);
+            //初始化世界地图
+
+            ready = true;
             return gameServer;
         } catch (Throwable e) {
             throw new RuntimeException(e);

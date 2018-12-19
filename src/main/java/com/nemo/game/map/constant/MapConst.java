@@ -5,6 +5,13 @@ package com.nemo.game.map.constant;
  */
 public interface MapConst {
 
+    //速度
+    interface Speed {
+        int WALK = 240;
+        int RUN = 455;
+        int HORSE = 460;
+    }
+
     //方向量
     enum Dir{
         // 同一个点

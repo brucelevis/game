@@ -13,6 +13,8 @@ public interface IMapObject {
 
     void setConfigId(int configId);
 
+    int getType(); //各种类型的地图对象
+
     int getMapId();
 
     void setMapId(int mapId);
@@ -35,15 +37,17 @@ public interface IMapObject {
 
     String getShowName();
 
-    boolean penetrate(IMapObject obj, GameMap map); //穿透规则
+    boolean penetrate(IMapObject obj, boolean cross); //穿透规则
 
-    boolean overlying(IMapObject obj, GameMap map); //站一起规则
+    boolean overlying(IMapObject obj, boolean cross); //站一起规则
 
-    boolean isEnemy(IMapObject obj, boolean ignore);
+    boolean isEnemy(IMapObject obj, boolean ignoreTargetOnly);
 
-    boolean isFriend(IMapObject obj, boolean ignore);
+    boolean isFriend(IMapObject obj, boolean ignoreTargetOnly);
 
     long getRid();
 
-    int getType(); //各种类型的地图对象
+    int getViewRange();
+
+    int getHostId();
 }

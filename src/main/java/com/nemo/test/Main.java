@@ -4,10 +4,7 @@ package com.nemo.test;
 import com.nemo.concurrent.QueueExecutor;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.FutureTask;
@@ -123,39 +120,53 @@ public class Main {
 //        Map<Integer, Rank> rankMap = new HashMap<>();
 //        System.out.println(rankMap.size() + " " +rankMap.get(111));
 
-        FutureTask<String> futureTask = new FutureTask<>(new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                System.out.println("dd");
-                return "cc";
-            }
-        });
-
-
-
-        System.out.println("aa");
-        new Thread(futureTask).start();
-        System.out.println("bb");
-        while (!futureTask.isDone()) {
-            System.out.println("未完成");
-        }
-        System.out.println("已完成");
-        String s = futureTask.get();
+//        FutureTask<String> futureTask = new FutureTask<>(new Callable<String>() {
+//            @Override
+//            public String call() throws Exception {
+//                System.out.println("dd");
+//                return "cc";
+//            }
+//        });
+//
+//
+//
+//        System.out.println("aa");
+//        new Thread(futureTask).start();
+//        System.out.println("bb");
+//        while (!futureTask.isDone()) {
+//            System.out.println("未完成");
+//        }
+//        System.out.println("已完成");
+//        String s = futureTask.get();
 //        System.out.println(s);
 
-        int i = 1998 * 25000 / 10000;
+//        int i = 1998 * 25000 / 10000;
 //        System.out.println(i);
 
-        char a = 10000;
-        System.out.println(Long.toBinaryString(a));
+//        char a = 10000;
+//        System.out.println(Long.toBinaryString(a));
 //        for(; a < 10000; a++) {
 //            System.out.println(a);
 //            System.out.println(Integer.toBinaryString(a));
 //            System.out.println(a & 65280);
 //        }
-        int mod = 4;
-        mod %= 3;
-        System.out.println(mod);
+//        int mod = 4;
+//        mod %= 3;
+//        System.out.println(mod);
+
+//        int i = -2 * -2;
+//        System.out.println(new Random().nextInt(5));
+
+//        int time = 3600;
+//        time = (int)(time * ((double)(10000 - 5000) / 10000));
+//        System.out.println(time);
+
+        Integer[] arr = new Integer[]{1, 2, 3, 4};
+        List<Integer> list = Arrays.asList(arr);
+        System.out.println(list);
+        System.out.println(arr);
+
+
     }
 
 }

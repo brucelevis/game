@@ -1,5 +1,6 @@
 package com.nemo.game.map.obj;
 
+import com.nemo.game.map.aoi.TowerAOI;
 import com.nemo.game.map.constant.MapConst.Dir;
 import com.nemo.game.map.scene.GameMap;
 import com.nemo.game.map.scene.Point;
@@ -28,6 +29,9 @@ public abstract class MapObject implements IMapObject{
     protected String name;
     //方向
     protected int dir;
+
+    //地图视野单位
+    private int viewRange = TowerAOI.RANGE_DEFAULT;
 
     @Override
     public boolean isVisible() {
@@ -111,22 +115,27 @@ public abstract class MapObject implements IMapObject{
     }
 
     @Override
-    public boolean penetrate(IMapObject obj, GameMap map) {
+    public int getType() {
+        return 0;
+    }
+
+    @Override
+    public boolean penetrate(IMapObject obj, boolean cross) {
         return false;
     }
 
     @Override
-    public boolean overlying(IMapObject obj, GameMap map) {
+    public boolean overlying(IMapObject obj, boolean cross) {
         return false;
     }
 
     @Override
-    public boolean isEnemy(IMapObject obj, boolean ignore) {
+    public boolean isEnemy(IMapObject obj, boolean ignoreTargetOnly) {
         return false;
     }
 
     @Override
-    public boolean isFriend(IMapObject obj, boolean ignore) {
+    public boolean isFriend(IMapObject obj, boolean ignoreTargetOnly) {
         return false;
     }
 
@@ -146,5 +155,19 @@ public abstract class MapObject implements IMapObject{
     @Override
     public String getShowName() {
         return name;
+    }
+
+    @Override
+    public int getViewRange() {
+        return viewRange;
+    }
+
+    public void setViewRange(int viewRange) {
+        this.viewRange = viewRange;
+    }
+
+    @Override
+    public int getHostId() {
+        return 0;
     }
 }

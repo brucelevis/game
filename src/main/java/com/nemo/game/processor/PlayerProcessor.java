@@ -1,9 +1,11 @@
 package com.nemo.game.processor;
 
 import com.nemo.concurrent.IQueueDriverCommand;
+import com.nemo.game.constant.GameConst;
 import com.nemo.game.entity.Role;
 import com.nemo.game.server.MessageProcessor;
 import com.nemo.game.server.Session;
+import com.nemo.net.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +29,7 @@ public class PlayerProcessor implements MessageProcessor{
     }
 
     @Override
-    public void process(IQueueDriverCommand message) {
+    public void process(Message message) {
         Session session = (Session)message.getParam(); //NetworkConsumer分发前会设置
         if(session == null) {
             LOGGER.error("Session不存在，取消执行:{}", message.getClass().getName());
@@ -49,8 +51,13 @@ public class PlayerProcessor implements MessageProcessor{
 
     @Override
     public void process(IQueueDriverCommand command, long key) {
+        //这里的key就是玩家role的id 一般在notice里调用
         int index = (int)(key % QUEUE_COUNT);
         executors[index].execute(command);
+    }
 
+    @Override
+    public byte id() {
+        return GameConst.QueueId.TWO_PLAYER;
     }
 }

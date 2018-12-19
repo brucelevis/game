@@ -2,9 +2,11 @@ package com.nemo.game.processor;
 
 import com.nemo.concurrent.AbstractCommand;
 import com.nemo.concurrent.IQueueDriverCommand;
+import com.nemo.game.constant.GameConst;
 import com.nemo.game.entity.Role;
 import com.nemo.game.server.MessageProcessor;
 import com.nemo.game.server.Session;
+import com.nemo.net.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +19,7 @@ public class UnionProcessor implements MessageProcessor{
     private Executor executor = Executors.newSingleThreadExecutor(r -> new Thread(r, "帮会线程"));
 
     @Override
-    public void process(IQueueDriverCommand message) {
+    public void process(Message message) {
         Session session = (Session) message.getParam();
         if (session == null) {
             LOGGER.error("Session不存在，取消执行:{}", message.getClass().getName());
@@ -40,7 +42,12 @@ public class UnionProcessor implements MessageProcessor{
     }
 
     @Override
-    public void process(IQueueDriverCommand message, long id) {
+    public void process(IQueueDriverCommand command, long id) {
+        executor.execute(command);
+    }
 
+    @Override
+    public byte id() {
+        return GameConst.QueueId.THREE_UNION;
     }
 }

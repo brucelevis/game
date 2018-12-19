@@ -6,6 +6,7 @@ import com.nemo.game.server.EventListener;
 import com.nemo.game.server.GameMessagePool;
 import com.nemo.game.server.MessageRouter;
 import com.nemo.game.server.ServerOption;
+import com.nemo.log.LogService;
 import com.nemo.net.NetworkService;
 import com.nemo.net.NetworkServiceBuilder;
 
@@ -21,7 +22,8 @@ public class GameServer {
 
     public GameServer(ServerOption option) throws Exception{
         int bossLoopGroupCount = 4;
-        int workerLoopGroupCount = Runtime.getRuntime().availableProcessors() < 8 ? 8 : Runtime.getRuntime().availableProcessors();
+        int workerLoopGroupCount = Runtime.getRuntime().availableProcessors() < 8 ? 8
+                : Runtime.getRuntime().availableProcessors();
 
         NetworkServiceBuilder builder = new NetworkServiceBuilder();
         builder.setBossLoopGroupCount(bossLoopGroupCount);
@@ -40,6 +42,7 @@ public class GameServer {
         //初始化配置表
         ConfigDataManager.getInstance().init(option.getConfigDataPath());
         //初始化日志服务
+//        LogService.init
 
 
 

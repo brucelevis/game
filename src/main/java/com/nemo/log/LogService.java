@@ -1,13 +1,15 @@
 package com.nemo.log;
 
+import com.nemo.common.jdbc.ConnectionPool;
+import com.nemo.common.jdbc.DruidConnectionPool;
 import com.nemo.common.jdbc.JdbcTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
-
 
 public class LogService {
     private static Logger LOGGER = LoggerFactory.getLogger(LogService.class);
@@ -21,7 +23,19 @@ public class LogService {
         this.executor = new ThreadPoolExecutor(coreThreadPoolSize, maximumThreadPoolSize, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<>(), new LogService.LogThreadFactory(), new LogService.LogRejectedExecutionHandler());
     }
 
+    public static void init(String dsConfig, String logPath, int coreThreadPoolSize, int maximumThreadPoolSize) throws Exception {
+        coreThreadPoolSize = coreThreadPoolSize;
+        maximumThreadPoolSize = maximumThreadPoolSize;
+        ConnectionPool pool = new DruidConnectionPool(dsConfig);
+        template = new JdbcTemplate(pool);
+//        Set<Class<AbstractLog>> ret = LogBeanUtil
 
+
+
+
+
+
+    }
 
 
 

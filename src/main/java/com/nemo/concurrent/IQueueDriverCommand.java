@@ -13,5 +13,5 @@ public interface IQueueDriverCommand extends ICommand{
 
     Object getParam();
 
-    void setParam(Object var1);
+    void setParam(Object var1); //一般设置上session
 }

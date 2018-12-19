@@ -9,7 +9,7 @@ public interface GameConst {
         int TWO_PLAYER = 2;
         //帮会模块
         int THREE_UNION = 3;
-        //副本模块 主要针对多人副本
+        //副本模块 主要针对多人副本（战报）
         int FOUR_INSTANCE = 4;
         //场景
         int FIVE_MAP = 5;

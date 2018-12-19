@@ -29,6 +29,7 @@ public class TimeUtil {
     //格式
     public static final String DEFAULT_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
+    //获取time日零点毫秒时间
     public static long dayZeroMillsFromTime(long time) {
         Instant instant = Instant.ofEpochMilli(time);
         LocalDateTime dt = LocalDateTime.ofInstant(instant, ZoneId.systemDefault())

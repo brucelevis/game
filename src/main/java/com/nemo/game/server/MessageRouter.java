@@ -21,6 +21,10 @@ public class MessageRouter implements NetworkConsumer{
     private Map<Integer, MessageProcessor> processors = new HashMap<>();
 
     public MessageRouter() {
+        register();
+    }
+
+    public void register() {
         //登录和下线
         this.registerProcessor(GameConst.QueueId.ONE_LOGIN_LOGOUT, new LoginProcessor());
         //玩家队列

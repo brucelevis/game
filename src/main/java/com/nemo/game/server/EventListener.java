@@ -42,7 +42,7 @@ public class EventListener implements NetworkEventlistener{
             return;
         }
         MessageProcessor processor = GameContext.getGameServer().getRouter().getProcessor(GameConst.QueueId.ONE_LOGIN_LOGOUT);
-        processor.process(new LogoutCommand(session));
+        processor.process(new LogoutCommand(session), 0);
     }
 
     @Override

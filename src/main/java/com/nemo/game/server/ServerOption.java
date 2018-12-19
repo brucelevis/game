@@ -50,23 +50,31 @@ public class ServerOption {
     public static final String SSL_KEY_FILE = "sslKeyFile";
     public static final String SSL = "ssl";
     public static final String CENTER_KEY = "centerKey";
+    public static final String HOST = "host";
+    //跨服相关
+    public static final String REMOTE_HOST = "remoteHost";
+    public static final String CROSS_SERVER_GROUP = "crossServerGroup";
+    public static final String REMOTE_INFO_TYPE = "remoteInfoType";
+    public static final String REMOTE_INFO_API = "remoteInfoAPI";
 
     //服务器id
-    private int serverId;
-    //平台id
-    private int platformId;
-    //服务器类型1:游戏服
-    private int serverType = 1;
+    protected int serverId;
+    //平台id（自定）
+    protected int platformId;
+    //服务器类型1：游戏服 2：跨服
+    protected int serverType = 1;
+    //本机ip
+    protected String host;
     //游戏服务器端口
-    private int gameServerPort;
+    protected int gameServerPort;
     //后台服务器端口
-    private int backServerPort;
+    protected int backServerPort;
     //http服务器端口
     private int httpServerPort;
     //是des的加密code
-    private String desKey;
+    protected String desKey;
     //config.properties 配置地址
-    private String configPath;
+    protected String configPath;
     //data表文件所在路径
     private String configDataPath;
 
@@ -111,6 +119,17 @@ public class ServerOption {
     private String sslKeyFile;
 
     private boolean ssl;
+    //==========================================================================
+    //跨服相关配置
+    //==========================================================================
+    //跨服信息获取的方式 1本地配置 2api接口
+    private int remoteInfoType;
+
+    private String remoteHost;
+    //一起跨服的区服列表
+    private String crossServerGroup;
+    //获取远程服务器信息的接口
+    private String remoteInfoAPI;
 
     public void build(String configFile) {
         this.configPath = configFile;
@@ -158,6 +177,12 @@ public class ServerOption {
             this.sslKeyCertChainFile = pro.getProperty(SSL_KEY_CERTCHAIN_FILE);
             this.sslKeyFile = pro.getProperty(SSL_KEY_FILE);
             this.ssl = Boolean.parseBoolean(pro.getProperty(SSL, "false"));
+
+            this.remoteHost = pro.getProperty(REMOTE_HOST);
+            this.host = pro.getProperty(HOST);
+            this.crossServerGroup = pro.getProperty(CROSS_SERVER_GROUP);
+            this.remoteInfoType = Integer.parseInt(pro.getProperty(REMOTE_INFO_TYPE, "1"));
+            this.remoteInfoAPI = pro.getProperty(REMOTE_INFO_API, "1");
         } catch (Exception e) {
             throw new RuntimeException("服务器初始配置文件读取错误，启动失败......", e);
         } finally {
