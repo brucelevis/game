@@ -27,6 +27,11 @@ public class Union implements Persistable{
     }
 
     @Override
+    public long getTouchTime() {
+        return 0;
+    }
+
+    @Override
     public int dataType() {
         return DataType.SYS_UNION;
     }

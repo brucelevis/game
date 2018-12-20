@@ -6,21 +6,18 @@ import com.nemo.common.jdbc.JdbcTemplate;
 import com.nemo.common.jdbc.ProtostuffRowMapper;
 import com.nemo.common.persist.Cacheable;
 import com.nemo.common.persist.Persistable;
+import com.nemo.common.persist.PersistableCache;
 import com.nemo.game.back.entity.Announce;
 import com.nemo.game.back.listener.BackServerHeartListener;
-import com.nemo.game.data.DataCenter;
 import com.nemo.game.data.DataType;
 import com.nemo.game.data.IDataProvider;
 import com.nemo.game.data.mysql.factory.*;
 import com.nemo.game.data.mysql.mapper.AnnounceMapper;
-import com.nemo.game.data.mysql.mapper.RankHeroMapper;
 import com.nemo.game.data.mysql.mapper.RankMapper;
 import com.nemo.game.data.mysql.mapper.UserMapper;
 import com.nemo.game.entity.*;
-import com.nemo.game.entity.sys.SysData;
+import com.nemo.game.entity.sys.AbstractSysData;
 import com.nemo.game.server.ServerOption;
-import com.nemo.game.system.count.CountManager;
-import com.nemo.game.system.count.entity.Count;
 import com.nemo.game.system.user.field.UserField;
 import com.nemo.game.util.JdbcUtil;
 
@@ -30,15 +27,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 //mysql数据库代理，所有数据库存储相关的请求，都代理到了CacheManager
 public class MysqlDataProviderProxy implements IDataProvider{
+
     private static final Object NULL = new Object();
-
     private Map<String, Long> nameSidPid2Uid = new ConcurrentHashMap<>();
-
-    private Map<Long, Object> uidMap = new ConcurrentHashMap<>();
-
+    private static Map<Long, Object> uidMap = new ConcurrentHashMap<>();
     public static Map<Long, Object> unionMaps = new ConcurrentHashMap<>();
-
-    private JdbcTemplate template;
+    JdbcTemplate template;
     //管理各类数据缓存和定时任务执行
     private MysqlDataProvider provider;
 
@@ -56,24 +50,21 @@ public class MysqlDataProviderProxy implements IDataProvider{
         //注册factory
         provider.registerPersistTask(new UserPersistFactory());
         provider.registerPersistTask(new RolePersistFactory());
-        provider.registerPersistTask(new BagPersistFactory());
-        provider.registerPersistTask(new CountPersistFactory());
         provider.registerPersistTask(new SysDataPersistFactory());
-        provider.registerPersistTask(new SysUnionPersistFactory());
         provider.registerPersistTask(new RankPersistFactory());
-        provider.registerPersistTask(new RankHeroPersistFactory());
+        provider.registerPersistTask(new SysUnionPersistFactory());
         provider.registerPersistTask(new OrderPersistFactory());
-        provider.registerPersistTask(new RoleMailPersistFactory());
+        provider.registerPersistTask(new RoleBagPersistFactory());
+        provider.registerPersistTask(new RoleCountPersistFactory());
         provider.registerPersistTask(new AnnouncePersistFactory());
 
         //加载所有的uid
-        List<Map<String, Object>> users = template.queryList("select id, loginName, sid, pid from p_user",
-                JdbcTemplate.MAP_MAPPER);
+        List<Map<String, Object>> users = template.queryList("select id, loginName, sid, pid from p_user", JdbcTemplate.MAP_MAPPER);
         for(Map<String, Object> user : users) {
-            long id = (long)user.get(UserField.id);
-            String loginName = (String) user.get(UserField.loginName);
-            int sid = (int) user.get(UserField.sid);
-            int pid = (int) user.get(UserField.pid);
+            long id = (long)user.get(UserField.ID);
+            String loginName = (String) user.get(UserField.LOGIN_NAME);
+            int sid = (int) user.get(UserField.SID);
+            int pid = (int) user.get(UserField.PID);
             nameSidPid2Uid.put(loginName + "_" + sid + "_" + pid, id);
             uidMap.put(id, NULL);
         }
@@ -84,11 +75,6 @@ public class MysqlDataProviderProxy implements IDataProvider{
             long unionId = (long)map.get("id");
             unionMaps.put(unionId, NULL);
         }
-    }
-
-    //是否有这个玩家
-    private boolean hasUser(long id) {
-        return uidMap.containsKey(id);
     }
 
     //是否有这个公会
@@ -104,6 +90,17 @@ public class MysqlDataProviderProxy implements IDataProvider{
     @Override
     public void updateData(long dataId, int dataType, boolean immediately) {
         provider.update(dataId, dataType, immediately);
+    }
+
+    //获取指定数据表的缓存
+    @Override
+    public PersistableCache getCache(int dataType) {
+        return provider.getCache(dataType);
+    }
+
+    @Override
+    public JdbcTemplate getTemplate() {
+        return provider.template;
     }
 
     @Override
@@ -127,13 +124,20 @@ public class MysqlDataProviderProxy implements IDataProvider{
     }
 
     @Override
-    public void store() {
-        provider.store();
+    public void removeData(long id, int dateType) {
+        provider.removeFromCache(id, dateType);
+    }
+
+    //是否有这个玩家
+    @Override
+    public boolean hasUser(long id) {
+        return uidMap.containsKey(id);
     }
 
     @Override
     public void registerUser(User user) {
         nameSidPid2Uid.put(user.getLoginName() + "_" + user.getSid() + "_" + user.getPid(), user.getId());
+        uidMap.put(user.getId(), NULL);
     }
 
     @Override
@@ -145,8 +149,11 @@ public class MysqlDataProviderProxy implements IDataProvider{
         }
         User user = provider.get(id, DataType.USER);
         if(user == null) {
-            user = template.query("select id, loginName, roleName, sid, pid, ip, client, type, IDNumber, regTime, qudao " +
+            user = template.query("select id, loginName, roleName, sid, pid, ip, client, type, IDNumber, regTime, qudao, channel " +
                     "from p_user where id = ?", new UserMapper(), id);
+            if(user != null) {
+                provider.put(user);
+            }
             return user;
         }
         return user;
@@ -157,8 +164,9 @@ public class MysqlDataProviderProxy implements IDataProvider{
         if (hasUser(id)) {
             User user = provider.get(id, DataType.USER);
             if (user == null) {
-                user = template.query("select id, loginName, roleName, sid, pid, ip, client, type, IDNumber, regTime, qudao " +
-                        "from p_user where id = ?", new UserMapper(), id);
+                user = template.query("select id, loginName, roleName, sid, pid, ip, client, type, IDNumber, regTime , qudao, channel from " +
+                        "p_user where id = ?",
+                        new UserMapper(), id);
                 if (user != null) {
                     provider.put(user);
                 }
@@ -169,11 +177,16 @@ public class MysqlDataProviderProxy implements IDataProvider{
     }
 
     @Override
+    public User getUser(String suffixLoginName) {
+        return this.template.query("select * from p_user where loginName like ?", new UserMapper(), "%" + suffixLoginName);
+    }
+
+    @Override
     public Role getRole(long id) {
         Role role = provider.get(id, DataType.ROLE);
         if(role == null) {
             if(hasUser(id)) {
-                role = template.query("select data from p_role where id = ?", new ProtostuffRowMapper<Role>(Role.class), id);
+                role = template.query("select data from p_role where id = ?", new ProtostuffRowMapper<>(Role.class), id);
             }
             if(role != null) {
                 provider.put(role);
@@ -183,68 +196,22 @@ public class MysqlDataProviderProxy implements IDataProvider{
     }
 
     @Override
-    public RoleBag getBag(long id) {
-        RoleBag bag = provider.get(id, DataType.BAG);
-        if (bag == null) {
-            if (hasUser(id)) {
-                bag = template.query("select data from p_bag where id = ?", new ProtostuffRowMapper<RoleBag>(RoleBag.class), id);
-                if (bag != null) {
-                    provider.put(bag);
-                }
-                return bag;
-            }
-        }
-        return bag;
-    }
-
-    @Override
-    public RoleMail getRoleMail(long id) {
-        RoleMail roleMail = provider.get(id, DataType.ROLE_MAIL);
-        if (roleMail == null) {
-            if (hasUser(id)) {
-                roleMail = template.query("select data from p_mail where id = ?", new ProtostuffRowMapper<RoleMail>(RoleMail.class), id);
-                if (roleMail != null) {
-                    provider.put(roleMail);
-                }
-                return roleMail;
-            }
-        }
-        return roleMail;
-    }
-
-    @Override
-    public RoleCount getCount(long id) {
-        RoleCount roleCount = provider.get(id, DataType.COUNT);
-        if (roleCount == null) {
-            if (hasUser(id)) {
-                roleCount = template.query("select data from p_count where id = ?", new ProtostuffRowMapper<RoleCount>(RoleCount.class), id);
-                if (roleCount != null) {
-                    provider.put(roleCount);
-                }
-                return roleCount;
-            }
-        }
-        for (Count count : roleCount.getCountMap().values()) {
-            if (count.getCount() > 0) {
-                if (CountManager.getInstance().checkReset(count)) {
-                    DataCenter.updateData(roleCount);
-                }
-            }
-        }
-        return roleCount;
-    }
-
-    @Override
-    public <T extends SysData> T getSysData(long id, Class<T> clazz) {
+    public <T extends AbstractSysData> T getSysData(long id, Class<T> clazz) {
         T data = provider.get(id, DataType.SYS);
         if (data == null) {
-            data = template.query("select data from s_data where id = ?", new ProtostuffRowMapper<>(clazz), id);
+            data = this.template.query("select data from s_data where id = ?",
+                    new ProtostuffRowMapper<>(clazz), id);
             if (data != null) {
                 provider.put(data);
             }
             return data;
         }
         return data;
+    }
+
+    @Override
+    public void store() {
+        provider.store();
     }
 
     @Override
@@ -263,44 +230,51 @@ public class MysqlDataProviderProxy implements IDataProvider{
     }
 
     @Override
-    public Rank getRank(long id) {
-        Rank rank = provider.get(id, DataType.RANK);
-        if (rank == null) {
-            rank = template.query("select id, name, allFightPower, allLevel, achievement, vitality, pk," +
-                    " time_fp, time_lv, time_ac, time_vt, time_pk from s_rank where id = ?", new RankMapper(), id);
-            if (rank != null) {
-                provider.put(rank);
+    public RoleRank getRank(long id) {
+        RoleRank roleRank = provider.get(id, DataType.RANK);
+        if (roleRank == null) {
+            roleRank = template.query("select uid, name, roleLevel, roleRein, roleExp, sex, career, fightPower, heroFightPower, junxian, honor, wingFightPower, weiwang, barrier, searchPk, vipLevel, weiwangLevel,lastLoginTime from s_rank " +
+                    "where uid = ?", new RankMapper(), id);
+            if (roleRank != null) {
+                provider.put(roleRank);
             }
         }
-        return rank;
+        return roleRank;
     }
 
     @Override
-    public RankHero getRankHero(long id) {
-        RankHero rank = provider.get(id, DataType.RANK_HERO);
-        if (rank == null) {
-            rank = template.query("select id, rid, name, career, fightPower, lv, `time` from s_rank_hero where id = ?",
-                    new RankHeroMapper(), id);
-            if (rank != null) {
-                provider.put(rank);
+    public int size(int dataType) {
+        return provider.size(dataType);
+    }
+
+    @Override
+    public RoleBag getRoleBag(long id) {
+        RoleBag roleBag = provider.get(id, DataType.BAG);
+        if (roleBag == null) {
+            if (hasUser(id)) {
+                roleBag = template.query("select data from p_bag where id = ?",
+                        new ProtostuffRowMapper<>(RoleBag.class), id);
+            }
+            if (roleBag != null) {
+                provider.put(roleBag);
             }
         }
-        return rank;
+        return roleBag;
     }
 
     @Override
-    public List<Rank> getRankList(String type, String timeType) {
-        List<Rank> rankList = template.queryList("select id, name, allFightPower, allLevel, achievement, " +
-                "vitality, pk, time_fp, time_lv, time_ac, time_vt, time_pk from s_rank order by "
-                + type + " desc , " + timeType + " asc limit 0,100", new RankMapper());
-        return rankList;
-    }
-
-    @Override
-    public List<RankHero> getRankHeroList(int career) {
-        List<RankHero> rankList = template.queryList("select id, rid, name, career, fightPower, lv, `time` from s_rank_hero " +
-                "where career = ? order by fightPower desc , `time` asc limit 0,100", new RankHeroMapper(), career);
-        return rankList;
+    public RoleCount getRoleCount(long id) {
+        RoleCount roleCount = provider.get(id, DataType.COUNT);
+        if (roleCount == null) {
+            if (hasUser(id)) {
+                roleCount = template.query("select data from p_count where id = ?",
+                        new ProtostuffRowMapper<>(RoleCount.class), id);
+            }
+            if (roleCount != null) {
+                provider.put(roleCount);
+            }
+        }
+        return roleCount;
     }
 
     @Override

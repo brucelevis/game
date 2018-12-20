@@ -11,15 +11,18 @@ public class UserMapper implements RowMapper<User>{
 	@Override
 	public User mapping(ResultSet rs) throws SQLException {
         User user = new User();
-        user.setId(rs.getLong(UserField.id));
-        user.setLoginName(rs.getString(UserField.loginName));
-        user.setSid(rs.getInt(UserField.sid));
-        user.setPid(rs.getInt(UserField.pid));
-        user.setType(rs.getInt(UserField.type));
-        user.setIDNumber(rs.getString(UserField.IDNumber));
-        user.setClient(rs.getInt(UserField.client));
-        user.setRegTime(rs.getInt(UserField.regTime));
+        user.setId(rs.getLong(UserField.ID));
+        user.setLoginName(rs.getString(UserField.LOGIN_NAME));
+        user.setRoleName(rs.getString(UserField.ROLE_NAME));
+        user.setSid(rs.getInt(UserField.SID));
+        user.setPid(rs.getInt(UserField.PID));
+        user.setIp(rs.getString(UserField.IP));
+        user.setType(rs.getInt(UserField.TYPE));
+        user.setIdNumber(rs.getString(UserField.ID_NUMBER));
+        user.setClient(rs.getInt(UserField.CLIENT));
+        user.setRegTime(rs.getInt(UserField.REG_TIME));
         user.setQudao(rs.getInt(UserField.QUDAO));
+        user.setChannel(rs.getString(UserField.CHANNEL));
         return user;
 	}
 

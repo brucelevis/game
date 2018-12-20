@@ -4,9 +4,11 @@ import com.nemo.common.jdbc.SerializerUtil;
 import com.nemo.common.persist.PersistFactory;
 import com.nemo.common.persist.Persistable;
 import com.nemo.game.data.DataType;
-import com.nemo.game.entity.sys.SysData;
+import com.nemo.game.entity.sys.AbstractSysData;
+import lombok.extern.slf4j.Slf4j;
 
 //系统数据持久化工厂
+@Slf4j
 public class SysDataPersistFactory implements PersistFactory {
 	private static final String INSERT = "insert into s_data (id, data) values (?, ?)";
 
@@ -40,24 +42,64 @@ public class SysDataPersistFactory implements PersistFactory {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public Object[] createInsertParameters(Persistable obj) {
-		Class<SysData> clazz = (Class<SysData>) obj.getClass();
-		SysData sysData = (SysData) obj;
-		byte[] bytes = SerializerUtil.encode(sysData, clazz);
-		return new Object[]{obj.getId(), bytes};
+		Class<AbstractSysData> clazz = (Class<AbstractSysData>) obj.getClass();
+		AbstractSysData abstractSysData = (AbstractSysData) obj;
+		byte[] bytes = null;
+		int retry = 0;
+		while (retry < 10) {
+			try {
+				bytes = SerializerUtil.encode(abstractSysData, clazz);
+				break;
+			} catch (Throwable e) {
+				retry++;
+				log.error("数据" + abstractSysData.getId() + "入库序列化失败,进行重试，重试次数->" + retry, e);
+			}
+		}
+		if (retry > 1 && retry < 10) {
+			log.error("数据{}入库序列化重试次数->{}", abstractSysData.getId(), retry);
+		} else if (retry == 10) {
+			log.error("数据{}入库失败", abstractSysData.getId());
+		}
+		if (bytes == null) {
+			log.error("Protostuff编码错误,data:{}" + abstractSysData.getId());
+			return null;
+		}
+		return new Object[]{ obj.getId(), bytes };
 	}
 
 	@Override
 	public Object[] createUpdateParameters(Persistable obj) {
-		SysData sysData = (SysData) obj;
-		Class<SysData> clazz = (Class<SysData>) obj.getClass();
-		byte[] bytes = SerializerUtil.encode(sysData, clazz);
-		return new Object[]{bytes, obj.getId()};
+		AbstractSysData abstractSysData = (AbstractSysData) obj;
+		@SuppressWarnings("unchecked")
+		Class<AbstractSysData> clazz = (Class<AbstractSysData>) obj.getClass();
+		byte[] bytes = null;
+		int retry = 0;
+		while (retry < 10) {
+			try {
+				bytes = SerializerUtil.encode(abstractSysData, clazz);
+				break;
+			} catch (Throwable e) {
+				retry++;
+				log.error("数据" + abstractSysData.getId() + "入库序列化失败,进行重试，重试次数->" + retry, e);
+			}
+		}
+		if (retry > 1 && retry < 10) {
+			log.error("数据{}入库序列化重试次数->{}", abstractSysData.getId(), retry);
+		} else if (retry == 10) {
+			log.error("数据{}入库失败", abstractSysData.getId());
+		}
+		if (bytes == null) {
+			log.error("Protostuff编码错误,data:{}" + abstractSysData.getId());
+			return null;
+		}
+		return new Object[]{ bytes, obj.getId() };
 	}
 
 	@Override
 	public Object[] createDeleteParameters(Persistable obj) {
-		return new Object[]{obj.getId()};
+		return new Object[]{ obj.getId() };
 	}
 
 	@Override

@@ -41,10 +41,12 @@ public class Announce implements Persistable{
     }
 
     @Override
+    public long getTouchTime() {
+        return 0;
+    }
+
+    @Override
     public int dataType() {
         return DataType.ANNOUNCE;
     }
-
-
-
 }

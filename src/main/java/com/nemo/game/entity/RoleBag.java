@@ -9,6 +9,10 @@ import lombok.Data;
 //背包
 @Data
 public class RoleBag implements Persistable{
+
+    @Exclude
+    private long touchTime;
+
     @Exclude
     private boolean dirty = false;
 

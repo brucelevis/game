@@ -6,6 +6,7 @@ import lombok.Data;
 
 @Data
 public class Order implements Persistable{
+
     private boolean dirty = false;
 
     private long id;
@@ -32,11 +33,6 @@ public class Order implements Persistable{
     private int qudao;
 
     @Override
-    public long getId() {
-        return id;
-    }
-
-    @Override
     public boolean isDirty() {
         return dirty;
     }
@@ -44,6 +40,11 @@ public class Order implements Persistable{
     @Override
     public void setDirty(boolean b) {
         this.dirty = b;
+    }
+
+    @Override
+    public long getTouchTime() {
+        return 0;
     }
 
     @Override

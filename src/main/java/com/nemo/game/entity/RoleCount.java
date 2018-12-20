@@ -12,6 +12,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Data
 public class RoleCount implements Persistable {
+
+    @Exclude
+    private long touchTime;
+
     @Exclude
     private boolean dirty = false;
 

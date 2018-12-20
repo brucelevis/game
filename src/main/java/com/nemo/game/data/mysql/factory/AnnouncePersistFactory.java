@@ -9,7 +9,7 @@ import com.nemo.game.data.DataType;
 public class AnnouncePersistFactory implements PersistFactory {
     private static final String INSERT = "INSERT INTO s_announce (id, uniqueId,startTime, endTime, period, type,content) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-    private static final String UPDATE = "";
+    private static final String UPDATE = "UPDATE  s_announce SET uniqueId = ?,startTime = ?, endTime = ?, period = ?, type = ?,content = ? WHERE id = ?";
 
     private static final String DELETE = "DELETE FROM s_announce WHERE id = ?";
 
@@ -46,7 +46,8 @@ public class AnnouncePersistFactory implements PersistFactory {
 
     @Override
     public Object[] createUpdateParameters(Persistable obj) {
-        return new Object[]{};
+        Announce announce = (Announce) obj;
+        return new Object[]{announce.getUniqueId(), announce.getStarTime(), announce.getEndTime(), announce.getPeriod(), announce.getType(), announce.getContent(), announce.getId()};
     }
 
     @Override

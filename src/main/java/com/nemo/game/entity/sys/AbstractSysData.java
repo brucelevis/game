@@ -5,7 +5,7 @@ import com.nemo.game.data.DataType;
 import io.protostuff.Exclude;
 
 //系统总数据
-public abstract class SysData implements Persistable{
+public abstract class AbstractSysData implements Persistable{
 
 
 
@@ -28,5 +28,10 @@ public abstract class SysData implements Persistable{
     @Override
     public void setDirty(boolean dirty) {
         this.dirty = dirty;
+    }
+
+    @Override
+    public long getTouchTime() {
+        return 0;
     }
 }

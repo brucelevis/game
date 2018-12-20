@@ -117,7 +117,7 @@ public class Main {
 //        System.out.println(list);
 //        System.out.println(list.indexOf(99));
 //
-//        Map<Integer, Rank> rankMap = new HashMap<>();
+//        Map<Integer, RoleRank> rankMap = new HashMap<>();
 //        System.out.println(rankMap.size() + " " +rankMap.get(111));
 
 //        FutureTask<String> futureTask = new FutureTask<>(new Callable<String>() {

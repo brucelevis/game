@@ -38,11 +38,11 @@ public class JdbcTemplate {
 
             rs = pstmt.executeQuery();
             if(rs.next()) {
-                T var13 = mapper.mapping(rs);
-                return var13;
+                T t = mapper.mapping(rs);
+                return t;
             }
-        } catch (Exception var11) {
-            LOGGER.error("查询单条数据失败, sql：" + sql, var11);
+        } catch (Exception e) {
+            LOGGER.error("查询单条数据失败, sql：" + sql, e);
         } finally {
             this.release(conn, pstmt, rs, mapper);
         }
@@ -59,7 +59,7 @@ public class JdbcTemplate {
             pstmt = conn.prepareStatement(sql);
 
             for(int i = 0; i < parameters.length; ++i) {
-                pstmt.setObject(i+1, parameters[i]);
+                pstmt.setObject(i + 1, parameters[i]);
             }
 
             rs = pstmt.executeQuery();
@@ -69,8 +69,8 @@ public class JdbcTemplate {
             }
 
             return ret;
-        } catch (Exception var12) {
-            LOGGER.error("查询多条数据失败,sql:" + sql, var12);
+        } catch (Exception e) {
+            LOGGER.error("查询多条数据失败,sql:" + sql, e);
         } finally {
             this.release(conn, pstmt, rs, mapper);
         }
@@ -81,7 +81,7 @@ public class JdbcTemplate {
         Connection conn = null;
         PreparedStatement pstmt = null;
 
-        byte var6;
+        byte b;
         try {
             conn = this.pool.getConnection();
             pstmt = conn.prepareStatement(sql);
@@ -92,13 +92,13 @@ public class JdbcTemplate {
 
             int ret = pstmt.executeUpdate();
             return ret;
-        } catch (Exception var10) {
-            LOGGER.error("数据库更新失败,sql:" + sql, var10);
-            var6 = -1;
+        } catch (Exception e) {
+            LOGGER.error("数据库更新失败,sql:" + sql, e);
+            b = -1;
         } finally {
             this.release(conn, pstmt, null, null);
         }
-        return var6;
+        return b;
     }
 
     public void batchUpdate(String sql, List<Object[]> parameters) {
@@ -113,13 +113,13 @@ public class JdbcTemplate {
             while (var5.hasNext()) {
                 Object[] parameterArray = var5.next();
                 for(int i = 0; i < parameterArray.length; ++i) {
-                    pstmt.setObject(i+1, parameterArray[i]);
+                    pstmt.setObject(i + 1, parameterArray[i]);
                 }
                 pstmt.addBatch();
             }
             pstmt.executeBatch();
-        } catch (Exception var11) {
-            LOGGER.error("批处理更新失败,sql:" + sql, var11);
+        } catch (Exception e) {
+            LOGGER.error("批处理更新失败,sql:" + sql, e);
         } finally {
             this.release(conn, pstmt, null, null);
         }
@@ -129,32 +129,32 @@ public class JdbcTemplate {
         if(rs != null) {
             try {
                 rs.close();
-            } catch (SQLException var9) {
-                LOGGER.error("Result关闭出错 ", var9);
+            } catch (SQLException e) {
+                LOGGER.error("Result关闭出错 ", e);
             }
         }
 
         if (pstmt != null) {
             try {
                 pstmt.close();
-            } catch (SQLException var8) {
-                LOGGER.error("PreparedStatement关闭出错。", var8);
+            } catch (SQLException e) {
+                LOGGER.error("PreparedStatement关闭出错。", e);
             }
         }
 
         if (conn != null) {
             try {
                 this.pool.release(conn);
-            } catch (SQLException var7) {
-                LOGGER.error("Connection关闭出错。", var7);
+            } catch (SQLException e) {
+                LOGGER.error("Connection关闭出错。", e);
             }
         }
 
         if (mapper != null) {
             try {
                 mapper.release();
-            } catch (Exception var6) {
-                LOGGER.error("Mapper释放出错。", var6);
+            } catch (Exception e) {
+                LOGGER.error("Mapper释放出错。", e);
             }
         }
     }

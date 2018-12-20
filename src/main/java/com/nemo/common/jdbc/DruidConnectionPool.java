@@ -21,6 +21,12 @@ public class DruidConnectionPool implements ConnectionPool{
         this.ds = DruidDataSourceFactory.createDataSource(props);
     }
 
+    public DruidConnectionPool(InputStream in) throws Exception {
+        Properties props = new Properties();
+        props.load(in);
+        this.ds = DruidDataSourceFactory.createDataSource(props);
+    }
+
     public Connection getConnection() throws SQLException {
         return this.ds.getConnection();
     }

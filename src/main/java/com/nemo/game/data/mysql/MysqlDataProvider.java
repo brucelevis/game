@@ -22,7 +22,7 @@ public class MysqlDataProvider {
     //缓存map
     private Map<Integer, PersistableCache> cacheMap = new HashMap<>();
     //JDBC模板类
-    private JdbcTemplate template;
+    JdbcTemplate template;
     //持久化线程池
     ScheduledThreadPoolExecutor executor;
 
@@ -41,7 +41,7 @@ public class MysqlDataProvider {
     //注册一个持久化任务
     public void registerPersistTask(PersistFactory persistFactory) {
         //创建对应缓存
-        PersistableCache cache = new PersistableCache(this.template, 10000);
+        PersistableCache cache = new PersistableCache(this.template, 30000);
         cacheMap.put(persistFactory.dataType(), cache);
         //注册一个持久化任务
         PersistTask task = new PersistTask(template, persistFactory, cache);
@@ -56,14 +56,9 @@ public class MysqlDataProvider {
         task.add(data, type);
     }
 
-    //从缓存中获得一条数据
-    public <T> T get(long id, int dataType) {
-        return (T)cacheMap.get(dataType).get(id);
-    }
-
-    //当前数据数量
-    public int size(int dataType) {
-        return cacheMap.get(dataType).size();
+    //当前数据量
+    public int size(int dateType) {
+        return cacheMap.get(dateType).size();
     }
 
     //结束持久化任务 并存储尚未更新的数据
@@ -75,9 +70,7 @@ public class MysqlDataProvider {
                 t--;
             }
         } catch (InterruptedException e) {
-            LOGGER.error("结束持久化任何，并且存储尚未更新的数据 中断", e);
-        } catch (Exception e) {
-            LOGGER.error("结束持久化任何，并且存储尚未更新的数据 异常", e);
+            e.printStackTrace();
         }
 
         try {
@@ -89,31 +82,14 @@ public class MysqlDataProvider {
         }
     }
 
+    //从缓存中获得一条数据
+    public <T> T get(long id, int dataType) {
+        return (T)cacheMap.get(dataType).get(id);
+    }
+
     //放入缓存数据
     public void put(Persistable obj) {
         cacheMap.get(obj.dataType()).put(obj);
-    }
-
-    //插入一条数据
-    public void insert(Persistable obj, boolean immediately) {
-        if(obj == null) {
-            return;
-        }
-        PersistableCache cache = cacheMap.get(obj.dataType());
-        cache.put(obj);
-        if(immediately) {
-            PersistFactory factory = getFactory(obj.dataType());
-            if(factory == null) {
-                return;
-            }
-            try {
-                template.update(factory.createInsertSql(), factory.createInsertParameters(obj));
-            } catch (Exception e) {
-                LOGGER.error("立即写入数据库失败,id:" + obj.getId(), e);
-            }
-        } else {
-            persist(obj, PersistType.INSERT);
-        }
     }
 
     //更新一条数据
@@ -134,9 +110,42 @@ public class MysqlDataProvider {
                 LOGGER.error("立即更新数据库失败, id:" + obj.getId(), e);
             }
         } else {
-            //不立即添加到线程池
+            //不立即 添加到线程池
             persist(obj, PersistType.UPDATE);
         }
+    }
+
+    //获取指定数据表的缓存
+    public PersistableCache getCache(int dateType) {
+        return cacheMap.get(dateType);
+    }
+
+    //插入一条数据
+    public void insert(Persistable obj, boolean immediately) {
+        if(obj == null) {
+            return;
+        }
+        PersistableCache cache = cacheMap.get(obj.dataType());
+        if(immediately) {
+            PersistFactory factory = getFactory(obj.dataType());
+            if(factory == null) {
+                return;
+            }
+            try {
+                template.update(factory.createInsertSql(), factory.createInsertParameters(obj));
+            } catch (Exception e) {
+                LOGGER.error("立即写入数据库失败,id:" + obj.getId(), e);
+            }
+            cache.put(obj);
+        } else {
+            cache.put(obj);
+            persist(obj, PersistType.INSERT);
+        }
+    }
+
+    //只从缓存中删除一条数据
+    public void removeFromCache(long id, int dataType) {
+        cacheMap.get(dataType).remove(id);
     }
 
     //删除一条数据，缓存和数据库中都删除
@@ -163,13 +172,6 @@ public class MysqlDataProvider {
         return obj;
     }
 
-    //只从缓存中删除一条数据
-    public void removeFromCache(long id, int dataType) {
-        cacheMap.get(dataType).remove(id);
-    }
-
-
-
     private PersistFactory getFactory(int dataType) {
         PersistTask task = persistTaskMap.get(dataType);
         if(task == null) {
@@ -177,8 +179,4 @@ public class MysqlDataProvider {
         }
         return task.getPersistFactory();
     }
-
-
-
-
 }

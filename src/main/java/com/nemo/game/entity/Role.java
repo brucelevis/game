@@ -10,6 +10,10 @@ import lombok.Data;
 //角色数据
 @Data
 public class Role implements Persistable {
+
+    @Exclude
+    private long touchTime;
+
     //基础数据
     @Tag(1)
     private RoleBasic basic = new RoleBasic();
