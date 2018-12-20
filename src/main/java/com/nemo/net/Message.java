@@ -3,7 +3,7 @@ package com.nemo.net;
 import com.nemo.concurrent.IQueueDriverCommand;
 
 public interface Message extends IQueueDriverCommand{
-    void decode(byte[] var1);
+    void decode(byte[] bytes);
 
     byte[] encode();
 

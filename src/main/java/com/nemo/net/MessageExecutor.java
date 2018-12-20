@@ -4,6 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +22,12 @@ public class MessageExecutor extends ChannelInboundHandlerAdapter{
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        this.consumer.consume(ctx.channel(), (Message)msg);
+        if(msg instanceof Message) {
+            this.consumer.consume(ctx.channel(), (Message) msg);
+        } else {
+            ReferenceCountUtil.release(msg);
+            LOGGER.error("不识别的msg类型：{}", msg.getClass().getName());
+        }
     }
 
     @Override

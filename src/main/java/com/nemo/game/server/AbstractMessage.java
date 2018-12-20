@@ -2,6 +2,9 @@ package com.nemo.game.server;
 
 import com.nemo.concurrent.IQueueDriverCommand;
 import com.nemo.concurrent.queue.ICommandQueue;
+import com.nemo.game.system.tip.TipManager;
+import com.nemo.game.util.AssertType;
+import com.nemo.game.util.ScriptException;
 import com.nemo.net.Message;
 import com.nemo.net.kryo.KryoBean;
 import com.nemo.net.kryo.KryoInput;
@@ -9,6 +12,7 @@ import com.nemo.net.kryo.KryoOutput;
 import com.nemo.net.kryo.KryoUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 //抽象消息，实现了Message的一些方法
 public abstract class AbstractMessage extends KryoBean implements Message {
@@ -84,14 +88,14 @@ public abstract class AbstractMessage extends KryoBean implements Message {
     public void decode(byte[] bytes) {
         KryoInput input = KryoUtil.getInput();
         input.setBuffer(bytes);
-        //推迟到各个子类中实现 将子类的定义字段解码
+        //留给子类实现 将子类的定义字段解码 赋予子类自身属性值
         read(input);
     }
 
     @Override
     public byte[] encode() {
         KryoOutput output = KryoUtil.getOutput();
-        //推迟到各个子类中实现 将子类的定义字段编码
+        //留给子类实现 将子类的定义字段编码成byte[] 发出
         write(output);
         return output.toBytesAndClear();
     }
@@ -109,7 +113,19 @@ public abstract class AbstractMessage extends KryoBean implements Message {
                 //...
             }
         } catch (Throwable e) {
-            LOGGER.error("命令执行错误", e);
+            if(e instanceof ScriptException) {
+                ScriptException scriptException = (ScriptException)e;
+                String prompt = scriptException.getPrompt();
+                if(prompt != null) {
+                    if(scriptException.getAssertType() == AssertType.CLIENT) {
+                        TipManager.getInstance().error(session.getRole().getId(), prompt);
+                    } else {
+                        LOGGER.error(prompt);
+                    }
+                }
+            } else {
+                LOGGER.error("命令执行错误", e);
+            }
         }
     }
 }

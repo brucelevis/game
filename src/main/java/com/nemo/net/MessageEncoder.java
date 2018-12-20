@@ -18,6 +18,10 @@ public class MessageEncoder extends MessageToByteEncoder<Message>{
             } else {
                 buffer = MessagePackage.packageMsg(msg);
             }
+
+            if(buffer != null) {
+                out.writeBytes(buffer);
+            }
         } finally {
             if(buffer != null) {
                 buffer.release();

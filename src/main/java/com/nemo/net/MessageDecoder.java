@@ -3,6 +3,7 @@ package com.nemo.net;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
+import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,8 +14,7 @@ public class MessageDecoder extends LengthFieldBasedFrameDecoder{
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageDecoder.class);
     private MessagePool msgPool;
 
-    private MessageDecoder(MessagePool msgPool, int maxFrameLength, int lengthFieldOffset, int lengthFieldLength,
-                           int lengthAdjustment, int initialBytesToStrip) throws IOException {
+    private MessageDecoder(MessagePool msgPool, int maxFrameLength, int lengthFieldOffset, int lengthFieldLength, int lengthAdjustment, int initialBytesToStrip) throws IOException {
         super(maxFrameLength, lengthFieldOffset, lengthFieldLength, lengthAdjustment, initialBytesToStrip);
         this.msgPool = msgPool;
     }
@@ -29,7 +29,7 @@ public class MessageDecoder extends LengthFieldBasedFrameDecoder{
         if(frame == null) {
             return null;
         } else {
-            Message var10;
+            Message msg;
             try {
                 int length = frame.readInt();
                 int id = frame.readInt();
@@ -53,16 +53,17 @@ public class MessageDecoder extends LengthFieldBasedFrameDecoder{
                 }
 
                 LOGGER.debug("解析消息：" + message);
-                var10 = message;
+                msg = message;
             } catch (Exception var14) {
                 LOGGER.error(ctx.channel() + "消息解码异常", var14);
                 return null;
             } finally {
                 if(frame != null) {
-                    frame.release();
+                    ReferenceCountUtil.release(frame);
                 }
             }
-            return var10;
+
+            return msg;
         }
     }
 }

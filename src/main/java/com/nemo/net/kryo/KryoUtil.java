@@ -3,15 +3,21 @@ package com.nemo.net.kryo;
 public class KryoUtil {
     public static int CACHESIZE = 1048576;
 
-    private static final ThreadLocal<KryoOutput> cacheOutputs = ThreadLocal.withInitial(() -> {
-        KryoOutput output = new KryoOutput(KryoUtil.CACHESIZE);
-        return output;
-    });
+    private static final ThreadLocal<KryoOutput> cacheOutputs = new ThreadLocal<KryoOutput>() {
+        @Override
+        protected KryoOutput initialValue() {
+            KryoOutput output = new KryoOutput(KryoUtil.CACHESIZE);
+            return output;
+        }
+    };
 
-    private static final ThreadLocal<KryoInput> cacheInputs = ThreadLocal.withInitial(() -> {
-        KryoInput input = new KryoInput();
-        return input;
-    });
+    private static final ThreadLocal<KryoInput> cacheInputs = new ThreadLocal<KryoInput>() {
+        @Override
+        protected KryoInput initialValue() {
+            KryoInput input = new KryoInput();
+            return input;
+        }
+    };
 
     public KryoUtil(){
     }
