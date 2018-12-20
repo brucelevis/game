@@ -1,6 +1,5 @@
 package com.nemo.game.system.attr;
 
-import com.nemo.game.server.Session;
 import io.netty.channel.Channel;
 import io.netty.util.AttributeKey;
 

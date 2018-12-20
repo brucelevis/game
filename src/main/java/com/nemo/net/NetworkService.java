@@ -77,8 +77,8 @@ public class NetworkService {
                         if(builder.isWebSocket()) {
                             pip.addLast(new ChannelHandler[]{new HttpServerCodec()});
                             pip.addLast(new ChannelHandler[]{new HttpObjectAggregator(65536)});
-                            pip.addLast(new ChannelHandler[]{new WebSocketServerProtocolHandler("/", false)});
-                            pip.addLast(new ChannelHandler[]{new WebSocketFireWall("/")});
+                            pip.addLast(new ChannelHandler[]{new WebSocketServerProtocolHandler("/", true)});
+//                            pip.addLast(new ChannelHandler[]{new WebSocketFireWall("/")});
                             pip.addLast(new ChannelHandler[]{new WebSocketDecoder()});
                             pip.addLast(new ChannelHandler[]{new WebSocketEncoder()});
                         }
@@ -90,16 +90,17 @@ public class NetworkService {
                         //入站数据解码解析成特定的子类Message
                         pip.addLast("NettyMessageDecoder", new MessageDecoder(builder.getMsgPool()));
                         pip.addLast("NettyMessageEncoder", new MessageEncoder());
+
+                        Iterator iterator = builder.getChannelHandlerList().iterator();
+                        while(iterator.hasNext()) {
+                            ChannelHandler handler = (ChannelHandler)iterator.next();
+                            pip.addLast(new ChannelHandler[]{handler});
+                        }
+
                         //连接建立断开事件处理和特定Message处理
                         MessageExecutor executor = new MessageExecutor(builder.getConsumer(),
                                 builder.getNetworkEventlistener(), builder.getIdleMaxTime() > 0);
                         pip.addLast("NettyMessageExecutor", executor);
-
-                        Iterator var4 = builder.getChannelHandlerList().iterator();
-                        while(var4.hasNext()) {
-                            ChannelHandler handler = (ChannelHandler)var4.next();
-                            pip.addLast(new ChannelHandler[]{handler});
-                        }
                     }
                 });
     }

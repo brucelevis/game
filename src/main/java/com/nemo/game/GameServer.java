@@ -32,7 +32,14 @@ public class GameServer {
 
         builder.setMsgPool(new GameMessagePool());
         builder.setNetworkEventlistener(new EventListener());
+
         builder.setWebSocket(true);
+        builder.setSsl(option.isSsl());
+        builder.setSslKeyCertChainFile(option.getSslKeyCertChainFile());
+        builder.setSslKeyFile(option.getSslKeyFile());
+//        builder.setIdleMaxTime(option.getIdelTime() > 0 ? option.getIdelTime() : 10);
+
+        //注册消息处理器
         router = new MessageRouter();
         builder.setConsumer(router);
         //创建网络服务
