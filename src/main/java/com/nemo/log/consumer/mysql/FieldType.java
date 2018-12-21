@@ -1,4 +1,4 @@
-package com.nemo.log;
+package com.nemo.log.consumer.mysql;
 
 public enum FieldType {
     TINYINT,

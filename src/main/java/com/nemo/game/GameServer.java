@@ -1,12 +1,16 @@
 package com.nemo.game;
 
 import com.nemo.common.config.ConfigDataManager;
+import com.nemo.common.jdbc.ConnectionPool;
+import com.nemo.common.jdbc.DruidConnectionPool;
+import com.nemo.common.jdbc.JdbcTemplate;
 import com.nemo.game.data.DataCenter;
 import com.nemo.game.server.EventListener;
 import com.nemo.game.server.GameMessagePool;
 import com.nemo.game.server.MessageRouter;
 import com.nemo.game.server.ServerOption;
 import com.nemo.log.LogService;
+import com.nemo.log.consumer.mysql.MysqlLogConsumer;
 import com.nemo.net.NetworkService;
 import com.nemo.net.NetworkServiceBuilder;
 
@@ -49,7 +53,11 @@ public class GameServer {
         //初始化配置表
         ConfigDataManager.getInstance().init(option.getConfigDataPath());
         //初始化日志服务
-//        LogService.init
+        ConnectionPool connectionPool = new DruidConnectionPool(option.getLogDBConfigPath());
+        JdbcTemplate template = new JdbcTemplate(connectionPool);
+        LogService.addConsumer(new MysqlLogConsumer(template));
+        //LogService.addConsumer(new TextLogConsumer());
+        LogService.start("com.nemo.game.log", 4, 4);
 
 
 

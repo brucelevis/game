@@ -1,4 +1,4 @@
-package com.nemo.log;
+package com.nemo.log.consumer.mysql;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -23,21 +23,30 @@ class TableDesc {
     private TableCycle cycle;
     private List<ColumnDesc> columns = new ArrayList<>();
     private int noAutoIncrementColumnCount;
-
-    TableDesc() {
-    }
+    private String charset = TableCharset.UTF8MB4.value();
 
     private String buildCreateSql() {
         StringBuffer DDL = new StringBuffer();
         DDL.append("CREATE TABLE IF NOT EXISTS `%s` (\n");
-        Iterator<ColumnDesc> var2 = this.columns.iterator();
 
-        while (var2.hasNext()) {
-            ColumnDesc col = var2.next();
+        Iterator<ColumnDesc> iterator = this.columns.iterator();
+        ColumnDesc col;
+        while(iterator.hasNext()) {
+            col = iterator.next();
             DDL.append(col.toDDL()).append(",\n");
         }
 
-        DDL.append("PRIMARY KEY (`" + this.primaryKey + "`)) ENGINE = InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8");
+        iterator = this.columns.iterator();
+        while(iterator.hasNext()) {
+            col = iterator.next();
+            if (col.isIndex()) {
+                DDL.append(col.toIndex()).append(",\n");
+            }
+        }
+
+        DDL.append("PRIMARY KEY (`" + this.primaryKey + "`))\n");
+        DDL.append("ENGINE=InnoDB AUTO_INCREMENT=1 ");
+        DDL.append("DEFAULT CHARSET=").append(this.charset);
         return DDL.toString();
     }
 
@@ -46,21 +55,21 @@ class TableDesc {
         sql.append("insert into `%s` ");
         StringBuilder fields = new StringBuilder("(");
         StringBuilder values = new StringBuilder("(");
-        Iterator<ColumnDesc> var4 = this.columns.iterator();
 
-        while (var4.hasNext()) {
-            ColumnDesc col = var4.next();
-            if(!col.isAutoIncrement()) {
+        Iterator<ColumnDesc> iterator = this.columns.iterator();
+        while(iterator.hasNext()) {
+            ColumnDesc col = iterator.next();
+            if (!col.isAutoIncrement()) {
                 fields.append("`").append(col.getName()).append("`,");
                 values.append("?,");
             }
         }
 
-        if(fields.length() > 0) {
+        if (fields.length() > 0) {
             fields.deleteCharAt(fields.length() - 1).append(")");
         }
 
-        if(values.length() > 0) {
+        if (values.length() > 0) {
             values.deleteCharAt(values.length() - 1).append(")");
         }
 
@@ -73,24 +82,24 @@ class TableDesc {
         int index = 0;
 
         try {
-            Iterator<ColumnDesc> var4 = this.columns.iterator();
-
-            while (var4.hasNext()) {
-                ColumnDesc col = var4.next();
-                if(!col.isAutoIncrement()) {
+            Iterator<ColumnDesc> iterator = this.columns.iterator();
+            while(iterator.hasNext()) {
+                ColumnDesc col = iterator.next();
+                if (!col.isAutoIncrement()) {
                     ret[index] = col.getReadMethod().invoke(log);
                     ++index;
                 }
             }
+
             return ret;
-        } catch (Exception var6) {
-            var6.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
 
     public String buildName(long time) {
-        switch (this.cycle) {
+        switch(this.cycle) {
             case DAY:
                 return this.name + YYYY_MM_DD.format(new Date(time));
             case MONTH:
@@ -106,11 +115,11 @@ class TableDesc {
 
     public void init() {
         int count = 0;
-        Iterator<ColumnDesc> var2 = this.columns.iterator();
 
-        while (var2.hasNext()) {
-            ColumnDesc col = var2.next();
-            if(!col.isAutoIncrement()) {
+        Iterator<ColumnDesc> iterator = this.columns.iterator();
+        while(iterator.hasNext()) {
+            ColumnDesc col = iterator.next();
+            if (!col.isAutoIncrement()) {
                 ++count;
             }
         }
@@ -121,9 +130,9 @@ class TableDesc {
     }
 
     public void addCol(ColumnDesc newCol) {
-        for(int i = 0; i < this.columns.size(); i++) {
+        for(int i = 0; i < this.columns.size(); ++i) {
             ColumnDesc col = this.columns.get(i);
-            if(col.getName().equals(newCol.getName())) {
+            if (col.getName().equals(newCol.getName())) {
                 this.columns.remove(i);
                 this.columns.add(i, newCol);
                 return;
@@ -132,20 +141,4 @@ class TableDesc {
 
         this.columns.add(newCol);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
